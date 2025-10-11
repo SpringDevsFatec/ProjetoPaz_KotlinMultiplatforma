@@ -3,6 +3,7 @@
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$/backend/projeto-paz-kotlin" />
+    <file type="web" url="file://$PROJECT_DIR$/frontend-paz" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="ProjectRootManager">

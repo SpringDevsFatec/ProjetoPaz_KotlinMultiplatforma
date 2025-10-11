@@ -25,14 +25,16 @@ data class Product(
     @field:Positive(message = "O preço deve ser um valor positivo.")
     var price: BigDecimal,
 
-
     var active: Boolean = true,
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     var category: Category,
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    @ManyToOne
+    @JoinColumn(name = "supplier_id", nullable = true) // nullable = true significa que um produto pode não ter um fornecedor
+    var supplier: Supplier?,
 
+    val createdAt: LocalDateTime = LocalDateTime.now(),
     var updatedAt: LocalDateTime? = null
 )

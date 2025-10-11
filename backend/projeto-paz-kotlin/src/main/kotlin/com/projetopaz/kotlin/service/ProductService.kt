@@ -15,7 +15,7 @@ class ProductService(
 ) {
 
     fun findAll(): List<Product> {
-        return productRepository.findAll().filter { it.active }
+        return productRepository.findAllByActiveTrue()
     }
 
     fun findById(id: Long): Product {

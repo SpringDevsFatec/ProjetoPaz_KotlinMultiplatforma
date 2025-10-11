@@ -1,0 +1,7 @@
+TEAM_ID=
+
+PRODUCT_NAME=frontend_paz
+PRODUCT_BUNDLE_IDENTIFIER=com.projetopaz.frontend_paz.frontend_paz$(TEAM_ID)
+
+CURRENT_PROJECT_VERSION=1
+MARKETING_VERSION=1.0
