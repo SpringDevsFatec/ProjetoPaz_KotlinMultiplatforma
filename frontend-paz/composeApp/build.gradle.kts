@@ -13,9 +13,7 @@ plugins {
 
 kotlin {
     androidTarget()
-
     val iosMain by sourceSets.creating
-
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -26,19 +24,18 @@ kotlin {
         }
         iosTarget.compilations["main"].defaultSourceSet.dependsOn(iosMain)
     }
-
     jvm()
-
     js {
         browser()
         binaries.executable()
     }
-
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation("io.ktor:ktor-client-android:2.3.12")
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -48,8 +45,6 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation("io.ktor:ktor-client-core:2.3.12")
             implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
             implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
@@ -74,7 +69,6 @@ kotlin {
 android {
     namespace = "com.projetopaz.frontend_paz"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-
     defaultConfig {
         applicationId = "com.projetopaz.frontend_paz"
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -83,14 +77,10 @@ android {
         versionName = "1.0"
     }
     packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
+        resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     }
     buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
+        getByName("release") { isMinifyEnabled = false }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -102,14 +92,29 @@ dependencies {
     debugImplementation(compose.uiTooling)
 }
 
-compose.desktop {
-    application {
-        mainClass = "com.projetopaz.frontend_paz.MainKt"
+compose {
+    desktop {
+        application {
+            mainClass = "com.projetopaz.frontend_paz.MainKt"
 
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.projetopaz.frontend_paz"
-            packageVersion = "1.0.0"
+            nativeDistributions {
+                targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+                packageName = "com.projetopaz.frontend_paz"
+                packageVersion = "1.0.0"
+            }
         }
     }
 }
+
+kotlin {
+    js {
+        browser {
+            commonWebpackConfig {
+                outputFileName = "composeApp.js"
+            }
+        }
+        binaries.executable()
+    }
+}
+
+

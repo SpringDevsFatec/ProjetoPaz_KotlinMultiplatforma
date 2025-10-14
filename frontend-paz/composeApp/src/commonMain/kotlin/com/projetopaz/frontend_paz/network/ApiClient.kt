@@ -70,7 +70,7 @@ object ApiClient {
 
     suspend fun getAllCategories(): List<Category> {
         return try {
-            client.get("http://localhost:8080/api/category").body()
+            client.get("http://localhost:8081/api/category").body()
         } catch (e: Exception) {
             println("Erro ao buscar categorias: ${e.message}")
             emptyList()
@@ -79,7 +79,7 @@ object ApiClient {
 
     suspend fun getAllSuppliers(): List<Supplier> {
         return try {
-            client.get("http://localhost:8080/api/supplier").body()
+            client.get("http://localhost:8081/api/supplier").body()
         } catch (e: Exception) {
             println("Erro ao buscar fornecedores: ${e.message}")
             emptyList()
@@ -88,7 +88,7 @@ object ApiClient {
 
     suspend fun getAllProducts(): List<Product> {
         return try {
-            client.get("http://localhost:8080/api/product").body()
+            client.get("http://localhost:8081/api/product").body()
         } catch (e: Exception) {
             println("Erro ao buscar produtos: ${e.message}")
             emptyList()
@@ -97,7 +97,7 @@ object ApiClient {
 
     suspend fun createProduct(productRequest: ProductRequest): Boolean {
         return try {
-            val response: HttpResponse = client.post("http://localhost:8080/api/product") {
+            val response: HttpResponse = client.post("http://localhost:8081/api/product") {
                 contentType(ContentType.Application.Json)
                 setBody(productRequest)
             }
@@ -110,7 +110,7 @@ object ApiClient {
 
     suspend fun updateProduct(productId: Long, productRequest: ProductRequest): Boolean {
         return try {
-            val response: HttpResponse = client.put("http://localhost:8080/api/product/$productId") {
+            val response: HttpResponse = client.put("http://localhost:8081/api/product/$productId") {
                 contentType(ContentType.Application.Json)
                 setBody(productRequest)
             }
@@ -123,7 +123,7 @@ object ApiClient {
 
     suspend fun deleteProduct(productId: Long): Boolean {
         return try {
-            val response: HttpResponse = client.delete("http://localhost:8080/api/product/$productId")
+            val response: HttpResponse = client.delete("http://localhost:8081/api/product/$productId")
             response.status.isSuccess()
         } catch (e: Exception) {
             println("Erro ao deletar produto: ${e.message}")
