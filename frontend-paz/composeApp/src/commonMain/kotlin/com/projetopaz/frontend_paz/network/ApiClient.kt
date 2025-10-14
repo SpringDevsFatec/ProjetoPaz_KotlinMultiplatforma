@@ -1,5 +1,7 @@
 package com.projetopaz.frontend_paz.network
 
+import com.projetopaz.frontend_paz.Platform
+import com.projetopaz.frontend_paz.getPlatform
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -10,7 +12,6 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-// Data classes para enviar dados para a API
 @Serializable
 data class CategoryRef(val id: Long)
 
@@ -59,6 +60,11 @@ data class Product(
 )
 
 object ApiClient {
+    private val baseUrl = when (getPlatform()) {
+        Platform.Android -> "http://10.0.2.2:8081"
+        else -> "http://localhost:8081"
+    }
+
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -70,7 +76,7 @@ object ApiClient {
 
     suspend fun getAllCategories(): List<Category> {
         return try {
-            client.get("http://localhost:8081/api/category").body()
+            client.get("$baseUrl/api/category").body()
         } catch (e: Exception) {
             println("Erro ao buscar categorias: ${e.message}")
             emptyList()
@@ -79,7 +85,7 @@ object ApiClient {
 
     suspend fun getAllSuppliers(): List<Supplier> {
         return try {
-            client.get("http://localhost:8081/api/supplier").body()
+            client.get("$baseUrl/api/supplier").body()
         } catch (e: Exception) {
             println("Erro ao buscar fornecedores: ${e.message}")
             emptyList()
@@ -88,7 +94,7 @@ object ApiClient {
 
     suspend fun getAllProducts(): List<Product> {
         return try {
-            client.get("http://localhost:8081/api/product").body()
+            client.get("$baseUrl/api/product").body()
         } catch (e: Exception) {
             println("Erro ao buscar produtos: ${e.message}")
             emptyList()
@@ -97,7 +103,7 @@ object ApiClient {
 
     suspend fun createProduct(productRequest: ProductRequest): Boolean {
         return try {
-            val response: HttpResponse = client.post("http://localhost:8081/api/product") {
+            val response: HttpResponse = client.post("$baseUrl/api/product") {
                 contentType(ContentType.Application.Json)
                 setBody(productRequest)
             }
@@ -110,7 +116,7 @@ object ApiClient {
 
     suspend fun updateProduct(productId: Long, productRequest: ProductRequest): Boolean {
         return try {
-            val response: HttpResponse = client.put("http://localhost:8081/api/product/$productId") {
+            val response: HttpResponse = client.put("$baseUrl/api/product/$productId") {
                 contentType(ContentType.Application.Json)
                 setBody(productRequest)
             }
@@ -123,7 +129,7 @@ object ApiClient {
 
     suspend fun deleteProduct(productId: Long): Boolean {
         return try {
-            val response: HttpResponse = client.delete("http://localhost:8081/api/product/$productId")
+            val response: HttpResponse = client.delete("$baseUrl/api/product/$productId")
             response.status.isSuccess()
         } catch (e: Exception) {
             println("Erro ao deletar produto: ${e.message}")

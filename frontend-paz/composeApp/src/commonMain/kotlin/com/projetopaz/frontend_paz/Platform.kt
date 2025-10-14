@@ -1,7 +1,7 @@
 package com.projetopaz.frontend_paz
 
-interface Platform {
-    val name: String
+enum class Platform {
+    Android, IOS, Desktop, Web
 }
 
 expect fun getPlatform(): Platform
