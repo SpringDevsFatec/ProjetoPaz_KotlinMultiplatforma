@@ -19,6 +19,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     // implementation("org.springframework.boot:spring-boot-starter-security") comentei pra nao dar problema pra testar la no postman
+    implementation("org.springframework.boot:spring-boot-starter-logging")
     implementation("org.springframework.boot:spring-boot-starter-integration")
     implementation("org.springframework.integration:spring-integration-jpa")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
