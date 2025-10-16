@@ -10,7 +10,7 @@ href="#fundamentacao">Fundamentação Teórica</a> | <a href="#publicoalvo">Púb
 
 ## 📑 Descrição Geral
 
-O **Projeto Paz** é uma iniciativa voltada ao desenvolvimento de uma **plataforma multiplataforma (mobile, web e desktop)**, criada com **Kotlin Multiplatform, Compose Multiplatform e Spring Boot**, com o objetivo de **otimizar a contabilidade e gestão de vendas informais** realizadas durante eventos religiosos e comunitários.
+O **Projeto Paz** é uma iniciativa voltada ao desenvolvimento de uma **plataforma multiplataforma (mobile, web e desktop)**, criada em **Kotlin Multiplatform**, com o objetivo de **otimizar a contabilidade e gestão de vendas informais**.
 
 A aplicação automatiza o **registro de vendas, controle de estoque, visualização de pedidos em tempo real, autenticação de usuários e geração de relatórios**, promovendo **profissionalização e confiabilidade** para vendedores informais, voluntários e trabalhadores comissionados.
 
