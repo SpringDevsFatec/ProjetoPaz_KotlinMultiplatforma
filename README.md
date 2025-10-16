@@ -21,12 +21,13 @@ A aplicação automatiza o **registro de vendas, controle de estoque, visualiza�
 
 ## 👥 Equipe
 
-Arthur Juan Farias Lima --- [GitHub](https://github.com/arthurxzl)
-Guilherme Cabral de Lima --- [GitHub](https://github.com/Guilherme-Cabral-de-Lima)
-Gustavo Costa Oliveira --- [GitHub](https://github.com/Guh1254)
-João Victor Alexandre da Silva --- [GitHub](https://github.com/JoaoV-A01)
-Lucas José Gomes da Silva --- [GitHub](https://github.com/LukasJSilva)
-Murilo Vieira Nascimento --- [GitHub](https://github.com/nasc2005)
+- Arthur Juan Farias Lima --- [GitHub](https://github.com/arthurxzl)
+- Guilherme Cabral de Lima --- [GitHub](https://github.com/Guilherme-Cabral-de-Lima)
+- Gustavo Costa Oliveira --- [GitHub](https://github.com/Guh1254)
+- João Victor Alexandre da Silva --- [GitHub](https://github.com/JoaoV-A01)
+- Lucas José Gomes da Silva --- [GitHub](https://github.com/LukasJSilva)
+- Murilo Vieira Nascimento --- [GitHub](https://github.com/nasc2005)
+
 
 → [Voltar ao topo](#topo)
 
