@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ProductRepository : JpaRepository<Product, Long> {
     fun findAllByActiveTrue(): List<Product>
+    fun findByNameContainingIgnoreCaseAndActiveTrue(name: String): List<Product>
 
 }
