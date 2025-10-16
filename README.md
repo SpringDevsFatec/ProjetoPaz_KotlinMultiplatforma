@@ -117,8 +117,6 @@ Este projeto é uma modernização da aplicação "Projeto Paz", implementado co
     
 -   **MySQL**
     
--   **Swagger/OpenAPI** (documentação da API)
-    
 
 ----------
 
