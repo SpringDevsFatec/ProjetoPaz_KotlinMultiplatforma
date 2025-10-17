@@ -1,11 +1,7 @@
 package com.projetopaz.kotlin.service
 
 import com.projetopaz.kotlin.entity.Supplier
-import com.projetopaz.kotlin.entity.SupplierAddress.StatusSupplierAddress
 import com.projetopaz.kotlin.repository.SupplierRepository
-import jakarta.persistence.Column
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
 import jakarta.transaction.Transactional
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -36,6 +32,16 @@ class SupplierService(
         val existingSupplier = supplierRepository.findById(id)
             .orElseThrow { IllegalArgumentException("Fornecedor não encontrado") }
 
+        val updatedPhone = existingSupplier.phone?.let { old ->
+            old.copy(
+                countryNumber = supplierDetails.phone?.countryNumber ?: old.countryNumber,
+                ddd1 = supplierDetails.phone?.ddd1 ?: old.ddd1,
+                ddd2 = supplierDetails.phone?.ddd2 ?: old.ddd2,
+                cellphone1 = supplierDetails.phone?.cellphone1 ?: old.cellphone1,
+                cellphone2 = supplierDetails.phone?.cellphone2 ?: old.cellphone2
+            )
+        }
+
         val updatedAddress = existingSupplier.address?.let { old ->
             old.copy(
                 cep = supplierDetails.address?.cep ?: old.cep,
@@ -50,13 +56,15 @@ class SupplierService(
         val updatedSupplier = existingSupplier.copy(
             name = supplierDetails.name,
             contactName = supplierDetails.contactName,
-            phone = supplierDetails.phone,
             email = supplierDetails.email,
             active = supplierDetails.active,
             updatedAt = LocalDateTime.now(),
-            location = supplierDetails.location,
+            cnpj = supplierDetails.cnpj,
+            type = supplierDetails.type,
+            observation = supplierDetails.observation,
             occupation = supplierDetails.occupation,
             updateUser = supplierDetails.updateUser,
+            phone = updatedPhone,
             address = updatedAddress
         )
 
