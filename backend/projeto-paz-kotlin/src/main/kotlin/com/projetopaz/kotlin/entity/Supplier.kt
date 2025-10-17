@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import java.time.LocalDateTime
+import com.fasterxml.jackson.annotation.JsonManagedReference
 
 @Entity
 data class Supplier(
@@ -27,5 +28,14 @@ data class Supplier(
 
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
-    var updatedAt: LocalDateTime? = null
-)
+    var updatedAt: LocalDateTime? = null,
+
+    @JsonManagedReference
+    @OneToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    val address: SupplierAddress? = null,
+) {
+    constructor():this(null, name="", contactName=null, phone=null, email=null,
+        active=true, createdAt=LocalDateTime.now(), updatedAt=LocalDateTime.now(), address=SupplierAddress()
+    )
+}

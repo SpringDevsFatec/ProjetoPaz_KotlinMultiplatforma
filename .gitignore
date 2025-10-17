@@ -1,16 +1,10 @@
-# Compiled class file
+# =====================================
+# Core Kotlin / Java
+# =====================================
 *.class
-
-# Log file
 *.log
-
-# BlueJ files
 *.ctxt
-
-# Mobile Tools for Java (J2ME)
 .mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
 *.nar
@@ -18,10 +12,113 @@
 *.zip
 *.tar.gz
 *.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
 
-# Kotlin Gradle plugin data, see https://kotlinlang.org/docs/whatsnew20.html#new-directory-for-kotlin-data-in-gradle-projects
+# Kotlin Gradle plugin data
 .kotlin/
+
+# =====================================
+# Gradle
+# =====================================
+.gradle/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+gradle-app.setting
+gradle-app.properties
+gradle.properties.local
+
+# =====================================
+# IntelliJ IDEA / Android Studio
+# =====================================
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.idea_modules/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries/
+.idea/shelf/
+.idea/httpRequests/
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# =====================================
+# macOS / Windows / Linux
+# =====================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# =====================================
+# Android (Mobile target)
+# =====================================
+local.properties
+captures/
+*.apk
+*.ap_
+*.aab
+*.dex
+*.so
+*.keystore
+*.jks
+*.hprof
+
+# =====================================
+# iOS / Xcode (Mobile target)
+# =====================================
+*.xcuserstate
+*.xcworkspace/
+*.xcuserdata/
+DerivedData/
+Pods/
+Carthage/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+*.hmap
+
+# =====================================
+# JavaScript (Web target)
+# =====================================
+node_modules/
+package-lock.json
+yarn.lock
+dist/
+build/
+npm-debug.log*
+yarn-error.log*
+
+# =====================================
+# Kotlin Native / Desktop (JVM, Native)
+# =====================================
+*.klib
+*.kexe
+*.konan/
+.konan/
+build/bin/
+build/kotlin/
+*.dSYM/
+*.exe
+*.dll
+*.obj
+*.o
+*.a
+
+# =====================================
+# Outros / Gerais
+# =====================================
+*.tmp
+*.swp
+*.bak
+*.old
+*.orig
+*.rej
