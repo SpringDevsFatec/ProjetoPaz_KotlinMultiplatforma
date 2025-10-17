@@ -1,7 +1,12 @@
 package com.projetopaz.kotlin.service
 
 import com.projetopaz.kotlin.entity.Supplier
+import com.projetopaz.kotlin.entity.SupplierAddress.StatusSupplierAddress
 import com.projetopaz.kotlin.repository.SupplierRepository
+import jakarta.persistence.Column
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.transaction.Transactional
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -26,16 +31,35 @@ class SupplierService(
         return supplierRepository.save(supplier)
     }
 
+    @Transactional
     fun update(id: Long, supplierDetails: Supplier): Supplier {
-        val existingSupplier = findById(id)
+        val existingSupplier = supplierRepository.findById(id)
+            .orElseThrow { IllegalArgumentException("Fornecedor não encontrado") }
+
+        val updatedAddress = existingSupplier.address?.let { old ->
+            old.copy(
+                cep = supplierDetails.address?.cep ?: old.cep,
+                street = supplierDetails.address?.street ?: old.street,
+                number = supplierDetails.address?.number ?: old.number,
+                complement = supplierDetails.address?.complement ?: old.complement,
+                quartier = supplierDetails.address?.quartier ?: old.quartier,
+                status = supplierDetails.address?.status ?: old.status
+            )
+        } ?: supplierDetails.address
+
         val updatedSupplier = existingSupplier.copy(
             name = supplierDetails.name,
             contactName = supplierDetails.contactName,
             phone = supplierDetails.phone,
             email = supplierDetails.email,
             active = supplierDetails.active,
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            location = supplierDetails.location,
+            occupation = supplierDetails.occupation,
+            updateUser = supplierDetails.updateUser,
+            address = updatedAddress
         )
+
         return supplierRepository.save(updatedSupplier)
     }
 

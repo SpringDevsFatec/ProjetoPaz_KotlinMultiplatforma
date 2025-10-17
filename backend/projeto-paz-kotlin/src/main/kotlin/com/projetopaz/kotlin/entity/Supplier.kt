@@ -26,6 +26,13 @@ data class Supplier(
 
     var active: Boolean = true,
 
+    var location: String?,
+
+    var occupation: String?,
+
+    var createUser: Long?,
+    var updateUser: Long?,
+
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     var updatedAt: LocalDateTime? = null,
@@ -35,7 +42,7 @@ data class Supplier(
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     val address: SupplierAddress? = null,
 ) {
-    constructor():this(null, name="", contactName=null, phone=null, email=null,
-        active=true, createdAt=LocalDateTime.now(), updatedAt=LocalDateTime.now(), address=SupplierAddress()
+    constructor():this(null, name="", contactName=null, phone=null, email=null, active=true,
+        location=null, occupation=null,createUser=null, updateUser=null, createdAt=LocalDateTime.now(), updatedAt=LocalDateTime.now(), address=SupplierAddress()
     )
 }

@@ -30,8 +30,7 @@ data class SupplierAddress (
     @field:Column(length = 100)
     var quartier: String?,
 
-    @Enumerated(EnumType.STRING)
-    var status : StatusSupplierAddress,
+    var status : Boolean,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     var createdAt: LocalDateTime?,
@@ -44,13 +43,8 @@ data class SupplierAddress (
     val supplier: Supplier? = null,
 ) {
     constructor():this(null, cep="", street=null, number=null, complement=null,
-        quartier=null, status=StatusSupplierAddress.ACTIVE, createdAt=LocalDateTime.now(), updatedAt=null
+        quartier=null, status=true, createdAt=LocalDateTime.now(), updatedAt=null
     )
-
-    enum class StatusSupplierAddress {
-        ACTIVE,
-        DISABLED
-    }
 }
 
 
