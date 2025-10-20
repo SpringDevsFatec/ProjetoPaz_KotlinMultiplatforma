@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import java.time.LocalDateTime
+import com.fasterxml.jackson.annotation.JsonManagedReference
 
 @Entity
 data class Supplier(
@@ -18,14 +19,40 @@ data class Supplier(
 
     var contactName: String?,
 
-    var phone: String?,
-
     @field:Email(message = "O formato do email é inválido.")
     var email: String?,
 
     var active: Boolean = true,
 
+    var cnpj: String?,
+
+    var type: String?,
+
+    var observation: String?,
+
+    var occupation: String?,
+
+    var createUser: Long?,
+
+    var updateUser: Long?,
+
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
-    var updatedAt: LocalDateTime? = null
-)
+    var updatedAt: LocalDateTime? = null,
+
+    @JsonManagedReference
+    @OneToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "phone_id", referencedColumnName = "id")
+    val phone: SupplierCellphone? = null,
+
+    @JsonManagedReference
+    @OneToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    val address: SupplierAddress? = null
+) {
+    constructor():this(null, name="", contactName=null, email=null, active=true, cnpj=null,
+        type=null, occupation=null, observation=null, createUser=null, updateUser=null,
+        createdAt=LocalDateTime.now(), updatedAt=LocalDateTime.now(),
+        phone=SupplierCellphone(), address=SupplierAddress()
+    )
+}
