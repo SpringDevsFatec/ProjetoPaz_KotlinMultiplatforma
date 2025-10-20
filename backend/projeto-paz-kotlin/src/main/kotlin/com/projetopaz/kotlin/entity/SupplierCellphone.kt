@@ -11,15 +11,15 @@ data class SupplierCellphone (
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id : Long? = null,
 
-    val countryNumber : String,
+    var countryNumber : String,
 
-    val ddd1 : String,
+    var ddd1 : String,
 
-    val ddd2 : String?,
+    var ddd2 : String?,
 
-    val cellphone1 : String,
+    var cellphone1 : String,
 
-    val cellphone2 : String?,
+    var cellphone2 : String?,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val createdAt : LocalDateTime,

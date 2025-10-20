@@ -1,6 +1,10 @@
 package com.projetopaz.kotlin.service
 
+import com.projetopaz.kotlin.dto.SupplierDTO
+import com.projetopaz.kotlin.dto.SupplierDTOView
+import com.projetopaz.kotlin.dto.SupplierStatusDTO
 import com.projetopaz.kotlin.entity.Supplier
+import com.projetopaz.kotlin.mapper.SupplierMapper
 import com.projetopaz.kotlin.repository.SupplierRepository
 import jakarta.transaction.Transactional
 import org.springframework.http.HttpStatus
@@ -10,71 +14,71 @@ import java.time.LocalDateTime
 
 @Service
 class SupplierService(
-    private val supplierRepository: SupplierRepository
+    private val repository: SupplierRepository,
+    private val mapper : SupplierMapper
 ) {
 
     // Regra de negócio: Retornar apenas fornecedores ativos
-    fun findAll(): List<Supplier> {
-        return supplierRepository.findAll().filter { it.active }
+    fun findAll(): List<SupplierDTOView> {
+        return repository.findActive().map { mapper.toDTOView(it) }
     }
 
-    fun findById(id: Long): Supplier {
-        return supplierRepository.findById(id)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Fornecedor com ID $id não encontrado") }
-    }
-
-    fun save(supplier: Supplier): Supplier {
-        return supplierRepository.save(supplier)
+    fun findById(id: Long): SupplierDTO {
+        val supplier = repository.findById(id).orElseThrow {
+            IllegalArgumentException("Fornecedor não encontrado: $id")
+        }
+        return mapper.toDTO(supplier)
     }
 
     @Transactional
-    fun update(id: Long, supplierDetails: Supplier): Supplier {
-        val existingSupplier = supplierRepository.findById(id)
+    fun save(dto: SupplierDTO): SupplierDTO {
+        val entity = mapper.fromDTO(dto)
+        val saved = repository.save(entity)
+        return mapper.toDTO(saved)
+    }
+
+    @Transactional
+    fun update(id: Long, dto: SupplierDTO): SupplierDTO {
+        val existing  = repository.findById(id)
             .orElseThrow { IllegalArgumentException("Fornecedor não encontrado") }
 
-        val updatedPhone = existingSupplier.phone?.let { old ->
-            old.copy(
-                countryNumber = supplierDetails.phone?.countryNumber ?: old.countryNumber,
-                ddd1 = supplierDetails.phone?.ddd1 ?: old.ddd1,
-                ddd2 = supplierDetails.phone?.ddd2 ?: old.ddd2,
-                cellphone1 = supplierDetails.phone?.cellphone1 ?: old.cellphone1,
-                cellphone2 = supplierDetails.phone?.cellphone2 ?: old.cellphone2
-            )
+        existing.name = dto.name
+        existing.contactName = ""
+        existing.email = ""
+        existing.cnpj = dto.cnpj
+        existing.type = dto.type
+        existing.observation = dto.observation
+        existing.occupation = ""
+        existing.updateUser = null
+        existing.updatedAt = LocalDateTime.now()
+        existing.phone?.apply {
+            countryNumber = dto.phone?.countryNumber ?: ""
+            ddd1 = dto.phone?.ddd1 ?: ""
+            ddd2 = dto.phone?.ddd2
+            cellphone1 = dto.phone?.cellphone1 ?: ""
+            cellphone2 = dto.phone?.cellphone2
+        }
+        existing.address?.apply {
+            cep = dto.address?.cep ?: ""
+            street = dto.address?.street
+            number = dto.address?.number
+            complement = dto.address?.complement
+            quartier = dto.address?.quartier
         }
 
-        val updatedAddress = existingSupplier.address?.let { old ->
-            old.copy(
-                cep = supplierDetails.address?.cep ?: old.cep,
-                street = supplierDetails.address?.street ?: old.street,
-                number = supplierDetails.address?.number ?: old.number,
-                complement = supplierDetails.address?.complement ?: old.complement,
-                quartier = supplierDetails.address?.quartier ?: old.quartier,
-                status = supplierDetails.address?.status ?: old.status
-            )
-        } ?: supplierDetails.address
-
-        val updatedSupplier = existingSupplier.copy(
-            name = supplierDetails.name,
-            contactName = supplierDetails.contactName,
-            email = supplierDetails.email,
-            active = supplierDetails.active,
-            updatedAt = LocalDateTime.now(),
-            cnpj = supplierDetails.cnpj,
-            type = supplierDetails.type,
-            observation = supplierDetails.observation,
-            occupation = supplierDetails.occupation,
-            updateUser = supplierDetails.updateUser,
-            phone = updatedPhone,
-            address = updatedAddress
-        )
-
-        return supplierRepository.save(updatedSupplier)
+        val saved = repository.save(existing)
+        return mapper.toDTO(saved)
     }
 
     // Regra de negócio: Inativar o fornecedor, não deletar
-    fun delete(id: Long) {
-        val supplier = findById(id)
-        supplier.active = false
-        supplierRepository.save(supplier)
+    @Transactional
+    fun delete(id: Long, dto: SupplierStatusDTO): SupplierDTO {
+        val supplier = repository.findById(id)
+            .orElseThrow { RuntimeException("Fornecedor não encontrado") }
+
+        supplier.active = dto.active
+
+        return mapper.toDTO(repository.save(supplier))
     }
+
 }

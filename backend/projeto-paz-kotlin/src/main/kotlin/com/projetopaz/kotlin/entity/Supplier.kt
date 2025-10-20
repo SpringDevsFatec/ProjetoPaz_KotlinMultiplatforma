@@ -50,8 +50,8 @@ data class Supplier(
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     val address: SupplierAddress? = null
 ) {
-    constructor():this(null, name="", contactName=null, email=null, active=true, cnpj=null,
-        type=null, occupation=null, observation=null, createUser=null, updateUser=null,
+    constructor():this(id=null, name="", contactName=null, email=null, active=true, cnpj=null,
+        type=null, observation=null, occupation=null, createUser=null, updateUser=null,
         createdAt=LocalDateTime.now(), updatedAt=LocalDateTime.now(),
         phone=SupplierCellphone(), address=SupplierAddress()
     )

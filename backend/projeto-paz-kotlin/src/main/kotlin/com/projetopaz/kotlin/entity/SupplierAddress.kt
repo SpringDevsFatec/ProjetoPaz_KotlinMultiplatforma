@@ -33,7 +33,7 @@ data class SupplierAddress (
     var status : Boolean,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    var createdAt: LocalDateTime?,
+    var createdAt: LocalDateTime,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     var updatedAt: LocalDateTime?,
