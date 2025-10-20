@@ -1,6 +1,6 @@
 package com.projetopaz.kotlin.service
 
-import com.projetopaz.kotlin.entity.Product
+import com.projetopaz.kotlin.model.Product
 import com.projetopaz.kotlin.repository.CategoryRepository
 import com.projetopaz.kotlin.repository.ProductRepository
 import org.springframework.http.HttpStatus

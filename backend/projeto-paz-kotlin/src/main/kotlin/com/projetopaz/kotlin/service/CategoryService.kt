@@ -1,6 +1,6 @@
 package com.projetopaz.kotlin.service
 
-import com.projetopaz.kotlin.entity.Category
+import com.projetopaz.kotlin.model.Category
 import com.projetopaz.kotlin.repository.CategoryRepository
 import org.springframework.stereotype.Service
 

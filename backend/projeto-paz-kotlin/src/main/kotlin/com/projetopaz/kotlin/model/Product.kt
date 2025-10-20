@@ -1,4 +1,4 @@
-package com.projetopaz.kotlin.entity
+package com.projetopaz.kotlin.model
 
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank

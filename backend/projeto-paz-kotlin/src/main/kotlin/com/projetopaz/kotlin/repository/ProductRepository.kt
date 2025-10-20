@@ -1,6 +1,6 @@
 package com.projetopaz.kotlin.repository
 
-import com.projetopaz.kotlin.entity.Product
+import com.projetopaz.kotlin.model.Product
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

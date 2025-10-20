@@ -1,14 +1,12 @@
 package com.projetopaz.kotlin.controller
 
-import com.projetopaz.kotlin.entity.Supplier
+import com.projetopaz.kotlin.model.Supplier
 import com.projetopaz.kotlin.service.SupplierService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
-
 
 
 @RestController

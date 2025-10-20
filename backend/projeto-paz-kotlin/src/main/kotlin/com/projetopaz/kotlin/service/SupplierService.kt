@@ -1,6 +1,6 @@
 package com.projetopaz.kotlin.service
 
-import com.projetopaz.kotlin.entity.Supplier
+import com.projetopaz.kotlin.model.Supplier
 import com.projetopaz.kotlin.repository.SupplierRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service

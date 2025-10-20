@@ -1,6 +1,6 @@
 package com.projetopaz.kotlin.controller
 
-import com.projetopaz.kotlin.entity.Category
+import com.projetopaz.kotlin.model.Category
 import com.projetopaz.kotlin.service.CategoryService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus

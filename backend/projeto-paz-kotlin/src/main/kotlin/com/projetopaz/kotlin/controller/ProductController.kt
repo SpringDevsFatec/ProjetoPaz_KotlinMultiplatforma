@@ -1,6 +1,6 @@
 package com.projetopaz.kotlin.controller
 
-import com.projetopaz.kotlin.entity.Product
+import com.projetopaz.kotlin.model.Product
 import com.projetopaz.kotlin.service.ProductService
 import jakarta.validation.Valid // Não se esqueça de importar
 import org.springframework.http.HttpStatus
