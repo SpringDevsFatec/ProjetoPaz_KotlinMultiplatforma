@@ -18,7 +18,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    // implementation("org.springframework.boot:spring-boot-starter-security") comentei pra nao dar problema pra testar la no postman
+    implementation("org.springframework.boot:spring-boot-starter-security") //comentei pra nao dar problema pra testar la no postman
     implementation("org.springframework.boot:spring-boot-starter-logging")
     implementation("org.springframework.boot:spring-boot-starter-integration")
     implementation("org.springframework.integration:spring-integration-jpa")
@@ -41,6 +41,12 @@ dependencies {
 
     // .ENV
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+
+    // JWT
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
 
 
 }

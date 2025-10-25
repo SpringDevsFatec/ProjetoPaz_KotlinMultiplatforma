@@ -1,5 +1,6 @@
 package com.projetopaz.kotlin.controller
 
+
 import com.projetopaz.kotlin.dto.*
 import com.projetopaz.kotlin.log.RequestLoggingFilter
 import com.projetopaz.kotlin.mapper.UserMapper
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.slf4j.LoggerFactory
 
+
 @RestController
 @RequestMapping("/api/user")
 class UserController(
@@ -18,11 +20,16 @@ class UserController(
 ) {
     private val logger = LoggerFactory.getLogger(RequestLoggingFilter::class.java)
 
+
     @PostMapping
     fun createUser(@Valid @RequestBody dto: UserCreateDTO): ResponseEntity<UserResponseDTO> {
-        val user = userService.createUser(dto)
+        println("chegou controller!")
+        val user = userService.createUserEncoded(dto)
+
+        println(UserMapper.toResponseDTO(user))
         return ResponseEntity.ok(UserMapper.toResponseDTO(user))
     }
+
 
     @GetMapping
     fun getUser(@RequestParam id: Long): ResponseEntity<UserResponseDTO> {
@@ -30,17 +37,20 @@ class UserController(
         return ResponseEntity.ok(UserMapper.toResponseDTO(user))
     }
 
+
     @GetMapping("/all")
     fun getAll(): ResponseEntity<List<UserResponseDTO>> {
         val users = userService.getAll().map { UserMapper.toResponseDTO(it) }
         return ResponseEntity.ok(users)
     }
 
+
     @PutMapping
     fun updateUser(@RequestParam id: Long, @Valid @RequestBody dto: UserCreateDTO): ResponseEntity<UserResponseDTO> {
         val updated = userService.updateUser(id, dto) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(UserMapper.toResponseDTO(updated))
     }
+
 
     @DeleteMapping
     fun deleteUser(@RequestParam id: Long): ResponseEntity<String> {
@@ -50,11 +60,6 @@ class UserController(
             ResponseEntity.notFound().build()
     }
 
-    @PostMapping("/login")
-    fun login(@Valid @RequestBody dto: UserLoginDTO): ResponseEntity<UserResponseDTO> {
-        val user = userService.login(dto) ?: return ResponseEntity.status(401).build()
-        return ResponseEntity.ok(UserMapper.toResponseDTO(user))
-    }
 
     // ✅ Agora usa o service correto para upload de imagem
     @PostMapping("/img")
@@ -64,6 +69,7 @@ class UserController(
     ): ResponseEntity<UserResponseDTO> {
         val user = userImageService.uploadUserImage(id, dto)
             ?: return ResponseEntity.notFound().build()
+
 
         return ResponseEntity.ok(UserMapper.toResponseDTO(user))
     }
