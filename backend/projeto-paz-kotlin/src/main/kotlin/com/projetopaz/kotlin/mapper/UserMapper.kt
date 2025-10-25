@@ -2,14 +2,16 @@ package com.projetopaz.kotlin.mapper
 
 import com.projetopaz.kotlin.dto.*
 import com.projetopaz.kotlin.model.*
+import java.time.LocalDate
 
 object UserMapper {
 
-    fun toEntity(dto: UserDTO): User {
+    // Criação de entidade a partir do DTO de criação (sem ID)
+    fun toEntity(dto: UserCreateDTO): User {
         val user = User(
             name = dto.name,
-            surname = dto.surname,
-            birthday = java.time.LocalDate.parse(dto.birthday),// Lembrar de ARRUMAR
+            surname = dto.surname ?: "",
+            birthday = dto.birthday,
             email = dto.email,
             password = dto.password,
             urlImage = dto.urlImage
@@ -40,13 +42,62 @@ object UserMapper {
         return user
     }
 
-    fun toDTO(entity: User): UserDTO = UserDTO(
+    // Atualiza entidade existente a partir do DTO de criação (sem alterar senha se quiser)
+    fun updateEntity(entity: User, dto: UserCreateDTO) {
+        entity.apply {
+            name = dto.name
+            surname = dto.surname ?: ""
+            birthday = dto.birthday
+            email = dto.email
+            password = dto.password
+            urlImage = dto.urlImage
+            updatedAt = LocalDate.now()
+        }
+
+        // Endereço
+        dto.adress.let { addrDto ->
+            if (entity.adress == null) {
+                entity.adress = Adress(
+                    street = addrDto.street,
+                    cep = addrDto.cep,
+                    quarter = addrDto.quarter,
+                    number = addrDto.number,
+                    complement = addrDto.complement,
+                    user = entity
+                )
+            } else {
+                entity.adress!!.apply {
+                    street = addrDto.street
+                    cep = addrDto.cep
+                    quarter = addrDto.quarter
+                    number = addrDto.number
+                    complement = addrDto.complement
+                    updatedAt = LocalDate.now()
+                }
+            }
+        }
+
+        // Telefones
+        entity.cellphones.clear()
+        entity.cellphones.addAll(dto.cellphones.map {
+            Cellphones(
+                countryNumber = it.countryNumber,
+                ddd1 = it.ddd1,
+                ddd2 = it.ddd2,
+                cellphone1 = it.cellphone1,
+                cellphone2 = it.cellphone2,
+                user = entity
+            )
+        })
+    }
+
+    // (não expõe senha)
+    fun toResponseDTO(entity: User): UserResponseDTO = UserResponseDTO(
         id = entity.id,
         name = entity.name,
         surname = entity.surname,
-        birthday = entity.birthday.toString(),
+        birthday = entity.birthday,
         email = entity.email,
-        password = entity.password,
         urlImage = entity.urlImage,
         adress = entity.adress?.let {
             AdressDTO(
@@ -56,7 +107,7 @@ object UserMapper {
                 number = it.number,
                 complement = it.complement
             )
-        } ?: throw IllegalStateException("Adress não encontrado"),
+        },
         cellphones = entity.cellphones.map {
             CellphonesDTO(
                 countryNumber = it.countryNumber,

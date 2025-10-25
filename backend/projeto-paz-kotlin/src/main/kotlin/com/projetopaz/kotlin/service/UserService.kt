@@ -1,8 +1,8 @@
 package com.projetopaz.kotlin.service
 
-import com.projetopaz.kotlin.dto.UserDTO
-import com.projetopaz.kotlin.model.User
+import com.projetopaz.kotlin.dto.*
 import com.projetopaz.kotlin.mapper.UserMapper
+import com.projetopaz.kotlin.model.User
 import com.projetopaz.kotlin.repository.UserRepository
 import org.springframework.stereotype.Service
 
@@ -11,7 +11,7 @@ class UserService(
     private val userRepository: UserRepository
 ) {
 
-    fun createUser(dto: UserDTO): User {
+    fun createUser(dto: UserCreateDTO): User {
         val entity = UserMapper.toEntity(dto)
         return userRepository.save(entity)
     }
@@ -21,10 +21,10 @@ class UserService(
     fun getById(id: Long): User? =
         userRepository.findById(id).orElse(null)?.takeIf { it.status }
 
-    fun updateUser(id: Long, dto: UserDTO): User? {
+    fun updateUser(id: Long, dto: UserCreateDTO): User? {
         val user = userRepository.findById(id).orElse(null) ?: return null
-        val updated = UserMapper.toEntity(dto).copy(id = user.id)
-        return userRepository.save(updated)
+        UserMapper.updateEntity(user, dto)
+        return userRepository.save(user)
     }
 
     fun deleteLogic(id: Long): Boolean {
@@ -34,8 +34,10 @@ class UserService(
         return true
     }
 
-    fun login(email: String, password: String): User? {
-        val user = userRepository.findByEmailAndStatusTrue(email)
-        return if (user?.password == password) user else null
+    fun login(dto: UserLoginDTO): User? {
+        val user = userRepository.findByEmailAndStatusTrue(dto.email)
+        return if (user?.password == dto.password) user else null
     }
+
+
 }

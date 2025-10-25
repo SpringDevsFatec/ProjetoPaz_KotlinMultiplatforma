@@ -10,12 +10,19 @@ data class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
+    @Column(length=100, nullable = false)
     var name: String,
+    @Column(length=100, nullable = true)
     var surname: String,
+    @Column(length=100, nullable = true)
     var birthday: LocalDate,
+
     var urlImage: String? = null,
+    @Column(length=100, unique = true, nullable = false)
     var email: String,
+    @Column(length=255, nullable = false)
     var password: String,
+
     var status: Boolean = true,
 
     @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
@@ -27,3 +34,5 @@ data class User(
     var createdAt: LocalDate = LocalDate.now(),
     var updatedAt: LocalDate = LocalDate.now()
 )
+
+

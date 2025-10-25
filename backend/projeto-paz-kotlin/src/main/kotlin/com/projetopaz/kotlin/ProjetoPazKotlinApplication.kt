@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class ProjetoPazKotlinApplication
 
 fun main(args: Array<String>) {
-	runApplication<ProjetoPazKotlinApplication>(*args)
+    runApplication<ProjetoPazKotlinApplication>(*args)
 }

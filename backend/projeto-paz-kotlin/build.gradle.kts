@@ -34,6 +34,15 @@ dependencies {
     testImplementation("org.springframework.integration:spring-integration-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    //AWS
+    implementation("software.amazon.awssdk:s3:2.25.49")
+    implementation("software.amazon.awssdk:auth:2.25.49")
+
+    // .ENV
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+
+
 }
 
 kotlin {
