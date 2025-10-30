@@ -1,6 +1,9 @@
 package com.projetopaz.kotlin.service
 
+import com.projetopaz.kotlin.dto.ProductDTO
+import com.projetopaz.kotlin.dto.ProductDTOView
 import com.projetopaz.kotlin.entity.Product
+import com.projetopaz.kotlin.mapper.ProductMapper
 import com.projetopaz.kotlin.repository.CategoryRepository
 import com.projetopaz.kotlin.repository.ProductRepository
 import org.springframework.http.HttpStatus
@@ -11,18 +14,25 @@ import java.time.LocalDateTime
 @Service
 class ProductService(
     private val productRepository: ProductRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val mapper : ProductMapper
 ) {
 
-    fun findAll(): List<Product> {
-        return productRepository.findAllByActiveTrue()
+    fun findAll(): List<ProductDTOView> {
+        println("findAll executado")
+        val result = productRepository.findActive()
+        println("Produtos encontrados: ${result.size}")
+        return result.map { mapper.toDTOView(it) }
     }
 
-    fun findById(id: Long): Product {
-        return productRepository.findById(id)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Produto com ID $id não encontrado") }
+    fun findById(id: Long): ProductDTO {
+        val product = productRepository.findById(id).orElseThrow {
+            IllegalStateException("Produto não encontrado: $id")
+        }
+        return mapper.toDTO(product)
     }
 
+    /*
     fun save(product: Product): Product {
         val categoryId = product.category.id
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Produto precisa ter um ID de categoria.")
@@ -33,6 +43,8 @@ class ProductService(
         product.category = existingCategory
         return productRepository.save(product)
     }
+    */
+    /*
 
     fun update(id: Long, productDetails: Product): Product {
         val existingProduct = findById(id)
@@ -54,10 +66,13 @@ class ProductService(
         )
         return productRepository.save(updatedProduct)
     }
+    */
 
+    /*
     fun delete(id: Long) {
         val product = findById(id)
         product.active = false
         productRepository.save(product)
     }
+     */
 }

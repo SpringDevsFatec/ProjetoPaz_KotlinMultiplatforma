@@ -13,13 +13,13 @@ data class Supplier(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    @field:NotBlank(message = "O nome do fornecedor não pode ser vazio.")
-    @field:Size(min = 2, max = 100, message = "O nome deve ter entre 2 e 100 caracteres.")
+    //@field:NotBlank(message = "O nome do fornecedor não pode ser vazio.")
+    //@field:Size(min = 2, max = 100, message = "O nome deve ter entre 2 e 100 caracteres.")
     var name: String,
 
     var contactName: String?,
 
-    @field:Email(message = "O formato do email é inválido.")
+    //@field:Email(message = "O formato do email é inválido.")
     var email: String?,
 
     var active: Boolean = true,
