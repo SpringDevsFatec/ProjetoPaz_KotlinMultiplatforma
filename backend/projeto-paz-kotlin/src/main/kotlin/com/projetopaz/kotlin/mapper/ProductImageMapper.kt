@@ -13,7 +13,7 @@ class ProductImageMapper {
             url = productImage.url,
             altText = productImage.altText,
             isFavorite = productImage.isFavorite,
-            product = productImage.product.id?:0
+            //product = productImage.product.id?:0
         )
     }
 }

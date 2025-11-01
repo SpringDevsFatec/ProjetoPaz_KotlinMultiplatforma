@@ -10,3 +10,7 @@ data class CategoryDTOView(
         name=""
     )
 }
+
+data class CategoryDTOViewIds(
+    val id: Long
+)

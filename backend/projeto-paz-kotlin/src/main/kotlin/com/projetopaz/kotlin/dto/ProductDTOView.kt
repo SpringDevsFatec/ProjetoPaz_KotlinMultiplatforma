@@ -9,7 +9,7 @@ data class ProductDTOView(
 
     val salePrice: BigDecimal,
 
-    //val categories: List<String>,
+    val categories: List<String>,
 
     val favoriteImageUrl: String?
 )

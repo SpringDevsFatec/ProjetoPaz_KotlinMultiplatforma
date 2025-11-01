@@ -1,5 +1,6 @@
 package com.projetopaz.kotlin.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
@@ -14,16 +15,16 @@ data class Product(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    //@field:NotBlank(message = "O nome do produto não pode ser vazio.")
-    //@field:Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres.")
+    @field:NotBlank(message = "O nome do produto não pode ser vazio.")
+    @field:Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres.")
     var name: String,
 
     var description: String?,
 
-    //@field:Positive(message = "O preço de custo deve ser um valor positivo.")
+    @field:Positive(message = "O preço de custo deve ser um valor positivo.")
     var costPrice: BigDecimal,
 
-    //@field:Positive(message = "O preço de venda deve ser um valor positivo.")
+    @field:Positive(message = "O preço de venda deve ser um valor positivo.")
     var salePrice: BigDecimal,
 
     var isFavorite: Boolean,
@@ -36,8 +37,7 @@ data class Product(
 
     var updatedAt: LocalDateTime? = null,
 
-    @JsonManagedReference
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "product_category",
         joinColumns = [JoinColumn(name = "product_id")],
@@ -45,7 +45,7 @@ data class Product(
     )
     var categories: MutableSet<Category> = mutableSetOf(),
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     var images: MutableList<ProductImage> = mutableListOf(),
 
     @ManyToOne

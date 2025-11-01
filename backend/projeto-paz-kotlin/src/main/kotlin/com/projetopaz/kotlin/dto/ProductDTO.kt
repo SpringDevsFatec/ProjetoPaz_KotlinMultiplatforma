@@ -18,7 +18,7 @@ data class ProductDTO(
 
     val isDonation: Boolean,
 
-    //val categories: List<Long>,
+    val categories: List<CategoryDTOViewIds>,
 
     val supplier: Long?,
 
@@ -30,7 +30,7 @@ data class ProductDTO(
     constructor():this(id=null, name="", description=null,
         costPrice=BigDecimal.ONE, salePrice=BigDecimal.ONE,
         isFavorite=false, isDonation=false,
-        supplier=null, images=emptyList(), stock=null
+        categories = emptyList(), supplier=null, images=emptyList(), stock=null
     )
 }
 

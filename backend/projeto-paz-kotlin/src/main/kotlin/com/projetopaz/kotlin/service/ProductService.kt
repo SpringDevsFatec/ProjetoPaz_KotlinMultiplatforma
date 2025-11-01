@@ -1,7 +1,6 @@
 package com.projetopaz.kotlin.service
 
-import com.projetopaz.kotlin.dto.ProductDTO
-import com.projetopaz.kotlin.dto.ProductDTOView
+import com.projetopaz.kotlin.dto.*
 import com.projetopaz.kotlin.entity.Product
 import com.projetopaz.kotlin.mapper.ProductMapper
 import com.projetopaz.kotlin.repository.CategoryRepository
@@ -19,18 +18,68 @@ class ProductService(
 ) {
 
     fun findAll(): List<ProductDTOView> {
-        println("findAll executado")
-        val result = productRepository.findActive()
-        println("Produtos encontrados: ${result.size}")
-        return result.map { mapper.toDTOView(it) }
+        val result = productRepository.findActiveProducts()
+        return result.map { projection ->
+            ProductDTOView(
+                id = projection.getId(),
+                name = projection.getName(),
+                salePrice = projection.getSalePrice(),
+                categories = projection.getCategoryNames()?.split(",")?.filter { it.isNotBlank() } ?: emptyList(),
+                favoriteImageUrl = projection.getFavoriteImageUrl()
+            )
+        }
     }
 
+    fun findById(id: Long): ProductDTO? {
+        val productDetails = productRepository.findProductDetailsById(id) ?: return null
+        val images = productRepository.findProductImages(id)
+
+        return ProductDTO(
+            id = productDetails.getId(),
+            name = productDetails.getName(),
+            description = productDetails.getDescription(),
+            costPrice = productDetails.getCostPrice(),
+            salePrice = productDetails.getSalePrice(),
+            isFavorite = productDetails.getIsFavorite(),
+            isDonation = productDetails.getIsDonation(),
+            categories = parseCategories(productDetails.getCategoryIDs()),
+            stock = StockDTO(
+                quantity = productDetails.getStockQuantity(),
+                fabrication = productDetails.getFabricationDate(),
+                maturity = productDetails.getMaturityDate()
+            ),
+            supplier = productDetails.getSupplierID(),
+            images = images.map { image ->
+                ProductImageDTO(
+                    id = image.getImageId(),
+                    url = image.getImageUrl(),
+                    altText = image.getAltText(),
+                    isFavorite = image.getIsFavorite()
+                )
+            }
+        )
+    }
+
+    private fun parseCategories(ids: String?): List<CategoryDTOViewIds> {
+        if (ids.isNullOrBlank()) return emptyList()
+
+        val idList = ids.split(",")
+
+        return idList.mapIndexed { index, id ->
+            CategoryDTOViewIds(
+                id = id.toLong(),
+            )
+        }
+    }
+
+    /*
     fun findById(id: Long): ProductDTO {
         val product = productRepository.findById(id).orElseThrow {
             IllegalStateException("Produto não encontrado: $id")
         }
         return mapper.toDTO(product)
     }
+    */
 
     /*
     fun save(product: Product): Product {
