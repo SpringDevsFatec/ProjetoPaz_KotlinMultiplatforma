@@ -22,9 +22,10 @@ class AuthController(
 
     @PostMapping("/register")
     fun register(@Valid @RequestBody dto: UserCreateDTO): ResponseEntity<Any> {
-        println("ai zé da manga")
+
         val created = userService.createUserEncoded(dto)
-        val token = tokenService.generateToken(created.email)
+        val token = tokenService.generateToken(created.email, created.id)
+
         return ResponseEntity.ok(mapOf("token" to token, "user" to UserMapper.toResponseDTO(created)))
     }
 
@@ -32,7 +33,7 @@ class AuthController(
     @PostMapping("/login")
     fun login(@Valid @RequestBody dto: UserLoginDTO): ResponseEntity<Any> {
         val user = userService.login(dto) ?: return ResponseEntity.status(401).body(mapOf("error" to "Credenciais inválidas"))
-        val token = tokenService.generateToken(user.email)
+        val token = tokenService.generateToken(user.email, user.id)
         return ResponseEntity.ok(mapOf("token" to token, "user" to UserMapper.toResponseDTO(user)))
     }
 }

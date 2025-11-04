@@ -16,16 +16,19 @@ class TokenService(
 
     private val signingKey: Key = Keys.hmacShaKeyFor(securityProperties.tokenSecretKey.toByteArray())
 
-    fun generateToken(subject: String): String {
+    fun generateToken(subject: String, userId: Long): String {
         val now = Date()
-        val exp = Date(now.time + securityProperties.tokenExpirationSeconds * 1000)
+        val exp = Date(now.time + securityProperties.tokenExpirationSeconds * 6000)
+
         return Jwts.builder()
             .setSubject(subject)
+            .claim("userId", userId)
             .setIssuedAt(now)
             .setExpiration(exp)
             .signWith(signingKey, SignatureAlgorithm.HS256)
             .compact()
     }
+
 
     fun extractUsername(token: String): String? {
         return try {
@@ -39,6 +42,27 @@ class TokenService(
             null
         }
     }
+
+    fun extractUserId(token: String): Long? {
+        return try {
+            val claims = Jwts.parserBuilder()
+                .setSigningKey(signingKey)
+                .build()
+                .parseClaimsJws(token)
+                .body
+
+            val userId = claims["userId"]
+            when (userId) {
+                is Int -> userId.toLong()
+                is Long -> userId
+                is String -> userId.toLongOrNull()
+                else -> null
+            }
+        } catch (ex: Exception) {
+            null
+        }
+    }
+
 
     fun isTokenValid(token: String): Boolean {
         return try {

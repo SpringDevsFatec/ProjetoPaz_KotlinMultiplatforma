@@ -17,9 +17,9 @@ class UserImageService(
     fun uploadUserImage(id: Long, dto: ImageUploadDTO): User? {
         val user = userRepository.findById(id).orElse(null) ?: return null
 
-        logger.info("🖼️ Iniciando upload da imagem para o usuário ID $id...")
+        logger.info(" Iniciando upload da imagem para o usuário ID $id...")
         val url = uploader.uploadBase64(dto.base64)
-        logger.info("✅ Upload concluído. URL: $url")
+        logger.info(" Upload concluído. URL: $url")
 
         user.urlImage = url
         return userRepository.save(user)
