@@ -13,7 +13,7 @@ data class Stock(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id:Long?=null,
 
-    @field:Positive(message = "A quantidade deve ser um valor positivo.")
+    //@field:Positive(message = "A quantidade deve ser um valor positivo.")
     var quantity:Int,
 
     @JsonFormat(pattern = "yyyy-MM-dd")

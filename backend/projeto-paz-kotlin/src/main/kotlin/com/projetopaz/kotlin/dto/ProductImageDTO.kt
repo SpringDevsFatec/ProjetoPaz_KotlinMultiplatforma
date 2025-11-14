@@ -5,9 +5,9 @@ data class ProductImageDTO(
     val url: String,
     val altText: String?,
     val isFavorite: Boolean,
-    //val product: Long?
+    val product: Long?
 ) {
     constructor():this(id=0, url="", altText=null,
-        isFavorite=false, //product=null
+        isFavorite=false, product=null
     )
 }

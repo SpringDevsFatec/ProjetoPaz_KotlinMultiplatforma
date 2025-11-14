@@ -3,10 +3,11 @@ package com.projetopaz.kotlin.controller
 import com.projetopaz.kotlin.dto.ProductDTO
 import com.projetopaz.kotlin.dto.ProductDTOView
 import com.projetopaz.kotlin.service.ProductService
-import jakarta.validation.Valid // Não se esqueça de importar
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/api/product")
@@ -24,14 +25,11 @@ class ProductController(
         return ResponseEntity.ok(productService.findById(id))
     }
 
-    /*
     @PostMapping
-    fun createProduct(@Valid @RequestBody product: Product): ResponseEntity<Product> {
-        val savedProduct = productService.save(product)
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct)
+    fun create(@RequestBody @Valid dto: ProductDTO): ResponseEntity<ProductDTO> {
+        val saved = productService.save(dto)
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved)
     }
-    */
-
     /*
     @PutMapping("/{id}")
     fun updateProduct(@PathVariable id: Long, @Valid @RequestBody productDetails: Product): ResponseEntity<Product> {

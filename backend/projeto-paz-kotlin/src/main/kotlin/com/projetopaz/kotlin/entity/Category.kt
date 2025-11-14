@@ -32,7 +32,7 @@ data class Category(
 
     val updateUser: Long?,
 
-    val createdAt: LocalDateTime? = LocalDateTime.now(),
+    val createdAt: LocalDateTime = LocalDateTime.now(),
 
     var updatedAt: LocalDateTime? = null,
 
@@ -45,4 +45,16 @@ data class Category(
         active=true, createUser=null, updateUser=null,
         createdAt=LocalDateTime.now(), updatedAt=null
     )
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Category
+
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id?.hashCode() ?: 0
+    }
 }

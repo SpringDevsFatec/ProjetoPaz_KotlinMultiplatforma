@@ -1,6 +1,5 @@
 package com.projetopaz.kotlin.entity
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
@@ -50,7 +49,7 @@ data class Product(
 
     @ManyToOne
     @JoinColumn(name = "supplier_id", nullable = true) // nullable = true significa que um produto pode não ter um fornecedor
-    var supplier: Supplier?,
+    var supplier: Supplier? = null,
 
     @JsonManagedReference
     @OneToOne(cascade = [CascadeType.ALL])

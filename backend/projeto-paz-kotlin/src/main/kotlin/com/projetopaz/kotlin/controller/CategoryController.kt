@@ -6,6 +6,7 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.util.Optional
 
 @RestController
 @RequestMapping("/api/category")
@@ -27,22 +28,20 @@ class CategoryController(
     }
 
     @GetMapping("/{id}")
-    fun getCategoryById(@PathVariable id: Long): ResponseEntity<Category> {
+    fun getCategoryById(@PathVariable id: Long): ResponseEntity<Optional<Category?>> {
         val category = categoryService.findById(id)
         return category?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
     }
 
+    /*
     @PutMapping("/{id}")
     fun updateCategory(@PathVariable id: Long, @Valid @RequestBody categoryToUpdate: Category): ResponseEntity<Category> {
-        return categoryService.findById(id)?.let {
-            val updatedCategory = it.copy(
-                name = categoryToUpdate.name,
-                description = categoryToUpdate.description,
-                active = categoryToUpdate.active
-            )
-            ResponseEntity.ok(categoryService.save(updatedCategory))
-        } ?: ResponseEntity.notFound().build()
+        return categoryService.findById(id).let {
+            val updatedCategory: Category = categoryService.update(id, categoryToUpdate)
+            ResponseEntity.ok(updatedCategory)
+        }
     }
+    */
 
     @DeleteMapping("/{id}")
     fun deleteCategory(@PathVariable id: Long): ResponseEntity<Void> {

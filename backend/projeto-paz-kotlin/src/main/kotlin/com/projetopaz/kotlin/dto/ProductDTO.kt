@@ -4,7 +4,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 data class ProductDTO(
-    var id: Long?,
+    val id: Long? = null,
 
     val name: String,
 
@@ -18,21 +18,13 @@ data class ProductDTO(
 
     val isDonation: Boolean,
 
-    val categories: List<CategoryDTOViewIds>,
+    val categoryIds: List<Long>,
 
     val supplier: Long?,
 
-    val images: List<ProductImageDTO>,
-
     val stock: StockDTO?
 
-) {
-    constructor():this(id=null, name="", description=null,
-        costPrice=BigDecimal.ONE, salePrice=BigDecimal.ONE,
-        isFavorite=false, isDonation=false,
-        categories = emptyList(), supplier=null, images=emptyList(), stock=null
-    )
-}
+)
 
 data class StockDTO(
     val quantity: Int,

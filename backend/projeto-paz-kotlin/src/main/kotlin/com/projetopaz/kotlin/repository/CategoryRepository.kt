@@ -1,5 +1,6 @@
 package com.projetopaz.kotlin.repository
 
+import com.projetopaz.kotlin.dto.CategoryDTOViewIds
 import com.projetopaz.kotlin.entity.Category
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
@@ -8,4 +9,6 @@ import org.springframework.stereotype.Repository
 interface CategoryRepository : JpaRepository<Category, Long> {
 
     fun findByActiveTrue(): List<Category>
+
+    fun findById(id: CategoryDTOViewIds): Category?
 }

@@ -30,6 +30,13 @@ class SupplierService(
         return mapper.toDTO(supplier)
     }
 
+    fun findByIdNoDto(id: Long): Supplier {
+        val supplier = repository.findById(id).orElseThrow {
+            IllegalArgumentException("Fornecedor não encontrado: $id")
+        }
+        return supplier
+    }
+
     @Transactional
     fun save(dto: SupplierDTO): SupplierDTO {
         val entity = mapper.fromDTO(dto)
