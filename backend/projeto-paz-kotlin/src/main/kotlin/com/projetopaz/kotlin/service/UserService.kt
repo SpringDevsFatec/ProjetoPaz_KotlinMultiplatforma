@@ -1,6 +1,6 @@
 package com.projetopaz.kotlin.service
 
-
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import com.projetopaz.kotlin.dto.UserCreateDTO
 import com.projetopaz.kotlin.dto.UserLoginDTO
 import com.projetopaz.kotlin.mapper.UserMapper
@@ -60,7 +60,6 @@ class UserService(
     }
 
 
-    // New login method which validates password using BCrypt
     override fun loadUserByUsername(username: String): UserDetails {
         val user = userRepository.findByEmailAndStatusTrue(username)
             ?: throw UsernameNotFoundException("Usuário não encontrado: $username")
@@ -68,13 +67,14 @@ class UserService(
         return org.springframework.security.core.userdetails.User
             .withUsername(user.email)
             .password(user.password)
-            .authorities(emptyList()) // Sem roles por enquanto
+            .authorities(listOf(SimpleGrantedAuthority("ROLE_USER"))) // ✅ Adiciona uma role padrão
             .accountExpired(false)
             .accountLocked(false)
             .credentialsExpired(false)
             .disabled(!user.status)
             .build()
     }
+
 
 
 

@@ -29,7 +29,7 @@ class JwtAuthFilter(
         val authHeader = request.getHeader("Authorization")
         if (!authHeader.isNullOrBlank() && authHeader.startsWith("Bearer ")) {
             val token = authHeader.substring(7)
-
+                print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             try {
                 if (tokenService.isTokenValid(token)) {
                     val username = tokenService.extractUsername(token)
@@ -40,18 +40,26 @@ class JwtAuthFilter(
                             null,
                             userDetails.authorities
                         )
+
+                        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                         authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
                         SecurityContextHolder.getContext().authentication = authToken
+                        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                     }
                 }
             } catch (ex: Exception) {
                 logger.warn("JWT validation failed: ${ex.message}")
+                print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
                 response.status = HttpServletResponse.SC_UNAUTHORIZED
                 response.writer.write("Token inválido ou expirado")
                 return
             }
         }
 
+        println("SecurityContextHolder antes do chain: ${SecurityContextHolder.getContext().authentication}")
         filterChain.doFilter(request, response)
+        println("SecurityContextHolder depois do chain: ${SecurityContextHolder.getContext().authentication}")
+
+
     }
 }
