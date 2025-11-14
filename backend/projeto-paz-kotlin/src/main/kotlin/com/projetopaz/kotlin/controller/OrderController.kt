@@ -23,7 +23,7 @@ class OrderController(
 
     @GetMapping("/with-items/{idOrder}")
     fun getOrderWithItems(@PathVariable idOrder: Long): ResponseEntity<OrderDTO> {
-        val order = orderService.getOrderWithItems(idOrder) ?: return ResponseEntity.notFound().build()
+        val order = orderService.getOrderWithItems(idOrder) ?: return throw IllegalArgumentException("pedido não pode ser encontrado!.")
         return ResponseEntity.ok(OrderMapper.toDTO(order))
     }
 
