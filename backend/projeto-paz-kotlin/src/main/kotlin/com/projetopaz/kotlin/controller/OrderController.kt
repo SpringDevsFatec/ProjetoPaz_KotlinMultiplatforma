@@ -13,7 +13,7 @@ class OrderController(
 ) {
     @PostMapping("/{idSale}")
     fun createOrder(@PathVariable idSale: Long, @RequestBody dto: OrderDTO): ResponseEntity<OrderDTO> {
-        val order = orderService.createOrder(idSale, dto) ?: return ResponseEntity.badRequest().build()
+        val order = orderService.createOrder(idSale, dto) ?: return throw IllegalArgumentException("pedido não pode ser criado pois Venda não está mais em andamento!.")
         return ResponseEntity.ok(OrderMapper.toDTO(order))
     }
 
@@ -30,5 +30,5 @@ class OrderController(
     @DeleteMapping("/cancelled/{idOrder}")
     fun cancel(@PathVariable idOrder: Long): ResponseEntity<String> =
         if (orderService.cancelOrder(idOrder)) ResponseEntity.ok("Pedido cancelado com sucesso")
-        else ResponseEntity.notFound().build()
+        else ResponseEntity.ok("Pedido não cancelado com sucesso")
 }

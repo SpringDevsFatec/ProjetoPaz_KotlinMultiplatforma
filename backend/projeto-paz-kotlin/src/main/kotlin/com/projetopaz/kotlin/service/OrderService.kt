@@ -18,11 +18,14 @@ class OrderService(
 
     fun createOrder(saleId: Long, dto: OrderDTO): Order? {
         val sale = saleRepository.findById(saleId).orElse(null) ?: return null
-        if (sale.status != 1) return null // só cria order se sale estiver ativa
-
+        if (sale.status != 1) return null
         // cria order
         val order = OrderMapper.toEntity(dto)
         order.sale = sale
+
+        // ⭐ Calcula o total_amount diretamente da lista enviada no DTO
+        val totalAmount = dto.items.sumOf { it.unitPrice }
+        order.total_amount_order  = totalAmount
 
         val savedOrder = orderRepository.save(order)
 
@@ -39,8 +42,9 @@ class OrderService(
         return savedOrder
     }
 
+
     fun getBySaleId(saleId: Long): List<Order> =
-        orderRepository.findAllBySaleIdAndStatusTrue(saleId)
+        orderRepository.findAllBySaleId(saleId)
 
     fun getOrderWithItems(idOrder: Long): Order? =
         orderRepository.findById(idOrder).orElse(null)?.takeIf { it.status }

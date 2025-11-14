@@ -46,6 +46,7 @@ object SaleMapper {
             orders = entity.orders.map { order ->
                 OrderResponseDTO(
                     id = order.id,
+                    paymentMethod = order.paymentMethod,
                     total = order.total_amount_order ?: 0.0,
                     status = if (order.status) 1 else 0,
                     items = order.items.map { item ->
