@@ -1,51 +1,40 @@
 package com.projetopaz.kotlin.controller
 
-import com.projetopaz.kotlin.model.Supplier
+import com.projetopaz.kotlin.dto.SupplierDTO
+import com.projetopaz.kotlin.mapper.SupplierMapper
 import com.projetopaz.kotlin.service.SupplierService
-import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.slf4j.LoggerFactory
-
 
 @RestController
-class SupplierController(
-    private val supplierService: SupplierService
-)
-{
-    private val logger = LoggerFactory.getLogger(SupplierController::class.java)
+@RequestMapping("/api/supplier")
+class SupplierController(private val supplierService: SupplierService) {
 
-    @GetMapping("/api/supplier")
-    fun getAllSuppliers(): ResponseEntity<List<Supplier>> {
-        return ResponseEntity.ok(supplierService.findAll())
+    @PostMapping
+    fun create(@RequestBody dto: SupplierDTO): ResponseEntity<Any> {
+        val created = supplierService.create(dto)
+        return ResponseEntity.ok(SupplierMapper.toDto(created))
     }
 
-    @PostMapping("/api/supplier")
-    fun createSupplier(@Valid @RequestBody supplier: Supplier): ResponseEntity<Supplier> {
-        logger.info("JSON supplier: " )
-        logger.info("Iniciando criação de supplier: $supplier")
-
-        val savedSupplier = supplierService.save(supplier)
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedSupplier)
+    @PutMapping("/{id}")
+    fun update(@PathVariable id: Long, @RequestBody dto: SupplierDTO): ResponseEntity<Any> {
+        val updated = supplierService.update(id, dto) ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(SupplierMapper.toDto(updated))
     }
 
-    @GetMapping("/api/supplier/{id}")
-    fun getSupplierById(@PathVariable("id") id: Long): ResponseEntity<Supplier> {
-        return ResponseEntity.ok(supplierService.findById(id))
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: Long): ResponseEntity<Any> {
+        return if (supplierService.deleteLogic(id)) ResponseEntity.ok(mapOf("message" to "Fornecedor inativado"))
+        else ResponseEntity.notFound().build()
     }
 
-    @PutMapping("/api/supplier/{id}")
-    fun updateSupplier(@PathVariable("id") id: Long, @Valid @RequestBody supplierDetails: Supplier): ResponseEntity<Supplier> {
-        val updatedSupplier = supplierService.update(id, supplierDetails)
+    @GetMapping
+    fun getAll(): ResponseEntity<List<SupplierDTO>> =
+        ResponseEntity.ok(supplierService.getAll().map { SupplierMapper.toDto(it) })
 
-        return ResponseEntity.ok(updatedSupplier)
-    }
-
-    @DeleteMapping("/api/supplier/{id}")
-    fun deleteSupplier(@PathVariable("id") id: Long): ResponseEntity<Void> {
-        supplierService.delete(id)
-        return ResponseEntity.noContent().build()
+    @GetMapping("/{id}")
+    fun getById(@PathVariable id: Long): ResponseEntity<Any> {
+        val found = supplierService.getById(id) ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(SupplierMapper.toDto(found))
     }
 }

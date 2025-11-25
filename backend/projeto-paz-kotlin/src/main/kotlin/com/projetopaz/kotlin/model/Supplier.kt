@@ -1,31 +1,38 @@
 package com.projetopaz.kotlin.model
 
 import jakarta.persistence.*
-import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Size
-import java.time.LocalDateTime
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
+import java.time.Instant
 
 @Entity
+@Table(name = "supplier")
 data class Supplier(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    var id: Long? = null,
 
-    @field:NotBlank(message = "O nome do fornecedor não pode ser vazio.")
-    @field:Size(min = 2, max = 100, message = "O nome deve ter entre 2 e 100 caracteres.")
-    var name: String,
+    @Column(nullable = false)
+    var name: String? = null,
 
-    var contactName: String?,
+    var cnpj: String? = null,
+    var type: String? = null,
+    var occupation: String? = null,
+    var observation: String? = null,
 
-    var phone: String?,
+    @OneToMany(mappedBy = "supplier", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    var addresses: MutableList<SupplierAddress> = mutableListOf(),
 
-    @field:Email(message = "O formato do email é inválido.")
-    var email: String?,
+    @OneToMany(mappedBy = "supplier", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    var cellphones: MutableList<CellphoneSupplier> = mutableListOf(),
 
-    var active: Boolean = true,
+    @Column(nullable = false)
+    var status: Int = 1, // 1 = ativo, 0 = inativo
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    @CreationTimestamp
+    @Column(updatable = false)
+    var createdAt: Instant? = null,
 
-    var updatedAt: LocalDateTime? = null
+    @UpdateTimestamp
+    var updatedAt: Instant? = null
 )

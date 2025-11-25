@@ -1,26 +1,42 @@
 package com.projetopaz.kotlin.model
 
 import jakarta.persistence.*
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Size
 import java.time.LocalDateTime
 
 @Entity
+@Table(name = "category")
 data class Category(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    @field:NotBlank(message = "O nome da categoria não pode ser vazio.")
-    @field:Size(min = 3, max = 50, message = "O nome deve ter entre 3 e 50 caracteres.")
-    var name: String?,
+    @Column(nullable = false)
+    var name: String = "",
 
-    @field:Size(max = 255, message = "A descrição não pode exceder 255 caracteres.")
-    var description: String?,
+    @Column(name = "category_type", nullable = false)
+    var categoryType: String = "",
 
-    var active: Boolean = true,
+    @Column(name = "img_category")
+    var imgCategory: String? = null,
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    @Column(name = "alt_image")
+    var altImage: String? = null,
 
-    var updatedAt: LocalDateTime? = null
+    @Column(name = "favorite")
+    var favorite: Boolean = false,
+
+    @Column(nullable = false)
+    var status: Int = 1, // 1 = ativo / 0 = inativo
+
+    @Column(name = "created_at")
+    var createdAt: LocalDateTime = LocalDateTime.now(),
+
+    @Column(name = "updated_at")
+    var updatedAt: LocalDateTime? = null,
+
+    @Column(name = "create_user")
+    var createUser: Long? = null,
+
+    @Column(name = "update_user")
+    var updateUser: Long? = null
 )

@@ -27,7 +27,7 @@ class ImageSaleService(
             val url = uploader.uploadBase64(dto.base64)
             val image = ImageSale(
                 url = url,
-                alt = dto.alt,
+                alt = dto.alt.toString(),
                 sale = sale
             )
             val saved = imageSaleRepository.save(image)

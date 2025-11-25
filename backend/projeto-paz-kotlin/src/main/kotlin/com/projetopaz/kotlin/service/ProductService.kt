@@ -1,63 +1,97 @@
 package com.projetopaz.kotlin.service
 
+import com.projetopaz.kotlin.dto.ProductCreateDTO
+import com.projetopaz.kotlin.mapper.ProductMapper
 import com.projetopaz.kotlin.model.Product
 import com.projetopaz.kotlin.repository.CategoryRepository
 import com.projetopaz.kotlin.repository.ProductRepository
-import org.springframework.http.HttpStatus
+import com.projetopaz.kotlin.repository.SupplierRepository
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
 class ProductService(
     private val productRepository: ProductRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val supplierRepository: SupplierRepository,
+    private val stockService: StockService
 ) {
 
-    fun findAll(): List<Product> {
-        return productRepository.findAllByActiveTrue()
-    }
+    @Transactional
+    fun create(dto: ProductCreateDTO, userId: Long?): Product {
+        val product = Product(
+            name = dto.name,
+            costPrice = dto.costPrice,
+            salePrice = dto.salePrice,
+            description = dto.description,
+            isFavorite = dto.isFavorite,
+            donation = dto.donation,
+            createUser = userId
+        )
 
-    fun findById(id: Long): Product {
-        return productRepository.findById(id)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Produto com ID $id não encontrado") }
-    }
+        // supplier
+        dto.supplierId?.let { sid ->
+            val supplier = supplierRepository.findById(sid).orElse(null)
+            product.supplier = supplier
+        }
 
-    fun save(product: Product): Product {
-        val categoryId = product.category.id
-            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Produto precisa ter um ID de categoria.")
+        // stock
+        product.stock = stockService.createOrUpdate(dto.stock)
 
-        val existingCategory = categoryRepository.findById(categoryId)
-            .orElseThrow { ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria com ID $categoryId não existe.") }
+        // categories
+        dto.categoryIds.forEach { cid ->
+            categoryRepository.findById(cid).ifPresent { c -> product.categories.add(c) }
+        }
 
-        product.category = existingCategory
         return productRepository.save(product)
     }
 
-    fun update(id: Long, productDetails: Product): Product {
-        val existingProduct = findById(id)
+    @Transactional
+    fun update(id: Long, dto: ProductCreateDTO, userId: Long?): Product? {
+        val existing = productRepository.findById(id).orElse(null) ?: return null
 
-        val categoryId = productDetails.category.id
-            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Produto precisa ter um ID de categoria.")
+        existing.name = dto.name
+        existing.costPrice = dto.costPrice
+        existing.salePrice = dto.salePrice
+        existing.description = dto.description
+        existing.isFavorite = dto.isFavorite
+        existing.donation = dto.donation
+        existing.updatedAt = LocalDateTime.now()
+        existing.updateUser = userId
 
-        val existingCategory = categoryRepository.findById(categoryId)
-            .orElseThrow { ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoria com ID $categoryId não existe.") }
+        // supplier
+        dto.supplierId?.let { sid -> existing.supplier = supplierRepository.findById(sid).orElse(null) }
 
-        val updatedProduct = existingProduct.copy(
-            name = productDetails.name,
-            description = productDetails.description,
-            sku = productDetails.sku,
-            price = productDetails.price,
-            active = productDetails.active,
-            category = existingCategory,
-            updatedAt = LocalDateTime.now()
-        )
-        return productRepository.save(updatedProduct)
+        // stock
+        existing.stock = stockService.createOrUpdate(dto.stock)
+
+        // categories (replace)
+        existing.categories.clear()
+        dto.categoryIds.forEach { cid -> categoryRepository.findById(cid).ifPresent { c -> existing.categories.add(c) } }
+
+        return productRepository.save(existing)
     }
 
-    fun delete(id: Long) {
-        val product = findById(id)
-        product.active = false
+    fun delete(id: Long, userId: Long?): Boolean {
+        val product = productRepository.findById(id).orElse(null) ?: return false
+
+        product.status = 0
+        product.updatedAt = LocalDateTime.now()
+        product.updateUser = userId
         productRepository.save(product)
+        return true
     }
+
+    fun findAll(): List<Product> = productRepository.findAllByStatus(1)
+
+    fun findById(id: Long): Product? = productRepository.findByIdAndStatus(id, 1)
+
+    fun findByCategory(categoryId: Long): List<Product> = productRepository.findAllByCategories_IdAndStatus(categoryId, 1)
+
+    fun findFavorites(): List<Product> = productRepository.findAllByIsFavoriteAndStatus(true, 1)
+
+    fun findDonations(): List<Product> = productRepository.findAllByDonationAndStatus(true, 1)
+
+    fun searchByName(q: String): List<Product> = productRepository.findAllByNameContainingIgnoreCaseAndStatus(q, 1)
 }

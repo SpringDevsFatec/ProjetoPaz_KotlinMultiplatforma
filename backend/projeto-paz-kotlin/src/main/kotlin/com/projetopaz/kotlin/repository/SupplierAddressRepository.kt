@@ -1,11 +1,8 @@
 package com.projetopaz.kotlin.repository
 
-import com.projetopaz.kotlin.model.Category
+import com.projetopaz.kotlin.model.SupplierAddress
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface CategoryRepository : JpaRepository<Category, Long> {
-
-    fun findAllByStatus(status: Int): List<Category>
-}
+interface SupplierAddressRepository : JpaRepository<SupplierAddress, Long>

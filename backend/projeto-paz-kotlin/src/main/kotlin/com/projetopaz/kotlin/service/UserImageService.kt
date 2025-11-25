@@ -23,5 +23,6 @@ class UserImageService(
 
         user.urlImage = url
         return userRepository.save(user)
+
     }
 }

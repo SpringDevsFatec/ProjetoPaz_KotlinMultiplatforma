@@ -15,6 +15,7 @@ class S3ImageUploader(
     private val awsProperties: AwsProperties
 ) {
     fun uploadBase64(base64: String): String {
+
         val matcher = Pattern.compile("^data:(image/\\w+);base64,").matcher(base64)
         require(matcher.find()) { "Formato Base64 inválido. Deve conter o prefixo data:image/png;base64," }
 
