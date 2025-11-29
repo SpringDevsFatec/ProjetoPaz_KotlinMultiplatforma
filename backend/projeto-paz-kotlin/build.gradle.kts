@@ -8,7 +8,16 @@ plugins {
 
 group = "com.projetopaz"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_17
+
+kotlin {
+    jvmToolchain(17)
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
 
 repositories {
     mavenCentral()
@@ -18,7 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-security") //comentei pra nao dar problema pra testar la no postman
+    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-logging")
     implementation("org.springframework.boot:spring-boot-starter-integration")
     implementation("org.springframework.integration:spring-integration-jpa")
@@ -46,9 +55,6 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
-
-
-
 }
 
 kotlin {

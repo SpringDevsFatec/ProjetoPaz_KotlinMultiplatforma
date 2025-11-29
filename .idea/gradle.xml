@@ -5,7 +5,7 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/backend/projeto-paz-kotlin" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="24" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/backend/projeto-paz-kotlin" />
@@ -14,7 +14,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/frontend-paz" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="24" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/frontend-paz" />

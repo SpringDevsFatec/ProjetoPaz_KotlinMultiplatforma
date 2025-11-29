@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface CategoryRepository : JpaRepository<Category, Long> {
-
+    // Adicionado para buscar apenas as ativas
+    fun findAllByActiveTrue(): List<Category>
 }

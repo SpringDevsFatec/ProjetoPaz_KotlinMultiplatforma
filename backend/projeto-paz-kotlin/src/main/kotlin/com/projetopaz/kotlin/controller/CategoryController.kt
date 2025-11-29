@@ -13,10 +13,11 @@ class CategoryController(
     private val categoryService: CategoryService
 ) {
 
-    // FOI ADICIONADO @Valid AQUI
     @PostMapping
     fun createCategory(@Valid @RequestBody category: Category): ResponseEntity<Category> {
-        val savedCategory = categoryService.save(category)
+        // CORREÇÃO: Força o ID ser nulo para o JPA criar (INSERT) em vez de atualizar (UPDATE)
+        val newCategory = category.copy(id = null)
+        val savedCategory = categoryService.save(newCategory)
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory)
     }
 

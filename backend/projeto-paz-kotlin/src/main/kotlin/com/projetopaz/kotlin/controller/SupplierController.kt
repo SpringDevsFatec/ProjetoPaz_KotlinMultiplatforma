@@ -26,7 +26,9 @@ class SupplierController(
         logger.info("JSON supplier: " )
         logger.info("Iniciando criação de supplier: $supplier")
 
-        val savedSupplier = supplierService.save(supplier)
+        // CORREÇÃO: Força ID nulo para garantir INSERT
+        val newSupplier = supplier.copy(id = null)
+        val savedSupplier = supplierService.save(newSupplier)
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedSupplier)
     }

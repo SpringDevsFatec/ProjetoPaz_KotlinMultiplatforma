@@ -10,20 +10,26 @@ class CategoryService(
 ) {
 
     fun findAll(): List<Category> {
-        return categoryRepository.findAll()
+        return categoryRepository.findAllByActiveTrue()
     }
 
     fun findById(id: Long): Category? {
-        return categoryRepository.findById(id).orElse(null)
+        // Só retorna se estiver ativa
+        return categoryRepository.findById(id)
+            .filter { it.active }
+            .orElse(null)
     }
 
     fun save(category: Category): Category {
         return categoryRepository.save(category)
     }
 
+    // CORREÇÃO: Faz Soft Delete (Desativa em vez de apagar)
     fun delete(id: Long) {
-        if (categoryRepository.existsById(id)) {
-            categoryRepository.deleteById(id)
+        val category = categoryRepository.findById(id).orElse(null)
+        if (category != null) {
+            category.active = false
+            categoryRepository.save(category)
         }
     }
 }
