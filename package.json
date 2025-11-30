@@ -1,0 +1,29 @@
+{
+  "name": "paz-mobile",
+  "version": "1.0.0",
+  "description": "Meu App PAZ para gerenciamento de estoque.",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": [],
+  "author": "Seu Nome Aqui",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^39.2.4",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.seusite.pazmobile",
+    "win": {
+      "target": "nsis",
+      "icon": "Logo.ico"
+    },
+    "files": [
+      "**/*"
+    ]
+  }
+}
