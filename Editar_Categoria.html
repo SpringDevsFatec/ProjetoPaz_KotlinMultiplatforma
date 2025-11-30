@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Categoria - PAZ</title>
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+<body>
+    <div class="page-container">
+        <header class="header">
+        <div id="menu-btn" style="font-size: 28px; cursor: pointer; margin-left: 10px;">☰</div>
+        <div id="dropdown-menu" style="display:none; position:absolute; top:60px; left:10px; background:white; padding:15px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.2); z-index:999;">
+            <a href="Tela_Cadastrar.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Cadastrar</a>
+            <a href="Editar_Estoque.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Editar</a>
+            <a href="Tela_Sobre_Venda.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Histórico</a>
+            <a href="index.html" class="btn-secondary" style="display:block;">Sair</a>
+        </div>
+        <h1 style="margin: auto;">
+            <a href="Tela_Estoque_Produtos.html">
+                <img src="IMG/Logo.png" alt="Logo PAZ" style="height: 35px; vertical-align: middle;">
+            </a>
+        </h1>
+        <div class="profile-icon" style="margin-right: 15px;">
+            <a href="Tela_Editar_Usuario.html">👤</a>
+        </div>
+    </header>
+
+        <main class="main-content">
+            <section class="section-container">
+                <h2 class="section-title">Editar Categoria</h2>
+
+                <form class="profile-form">
+                    <div class="form-group">
+                        <label for="nome-categoria">Nome da Categoria *</label>
+                        <input type="text" id="nome-categoria" placeholder="Ex: Café" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tipo-categoria">Tipo da Categoria *</label>
+                        <input type="text" id="tipo-categoria" placeholder="Ex: Bebida" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descrição">Descrição *</label>
+                        <input type="text" id="descrição" placeholder="Descreva" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Imagem do Categoria</label>
+                        <div class="image-upload" onclick="document.getElementById('file-input').click()">
+                            <input type="file" id="file-input" accept="image/*" hidden>
+                            <div class="upload-placeholder">
+                                <span class="upload-icon">☁️⬆️</span>
+                                <p>Clique para adicionar imagem</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Editar Categoria</button>
+                    <button type="submit" class="btn-secondary">Desativar Categoria</button>
+                </form>
+            </section>
+        </main>
+
+        <footer class="footer-buttons">
+            <button class="btn-secondary">Voltar</button>
+            <button class="btn-primary">Home</button>
+        </footer>
+    </div>
+    <script>
+document.getElementById("menu-btn").addEventListener("click", function() {
+    const menu = document.getElementById("dropdown-menu");
+    menu.style.display = menu.style.display === "none" ? "block" : "none";
+});
+
+document.addEventListener("click", function(e) {
+    const menu = document.getElementById("dropdown-menu");
+    const button = document.getElementById("menu-btn");
+
+    if (!menu.contains(e.target) && !button.contains(e.target)) {
+        menu.style.display = "none";
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil</title>
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="page-container">
+        <header class="header">
+        <div id="menu-btn" style="font-size: 28px; cursor: pointer; margin-left: 10px;">☰</div>
+        <div id="dropdown-menu" style="display:none; position:absolute; top:60px; left:10px; background:white; padding:15px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.2); z-index:999;">
+            <a href="Tela_Cadastrar.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Cadastrar</a>
+            <a href="Editar_Estoque.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Editar</a>
+            <a href="Tela_Sobre_Venda.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Histórico</a>
+            <a href="index.html" class="btn-secondary" style="display:block;">Sair</a>
+        </div>
+        <h1 style="margin: auto;">
+            <a href="Tela_Estoque_Produtos.html">
+                <img src="IMG/Logo.png" alt="Logo PAZ" style="height: 35px; vertical-align: middle;">
+            </a>
+        </h1>
+        <div class="profile-icon" style="margin-right: 15px;">
+            <a href="Tela_Editar_Usuario.html">👤</a>
+        </div>
+    </header>
+
+        <main class="main-content">
+
+            <section class="section-container profile-section">
+                <div class="profile-avatar">
+                    <div class="image-upload" onclick="document.getElementById('file-input').click()">
+                        <input type="file" id="file-input" accept="image/*" hidden>
+                        <div class="upload-placeholder">
+                            <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Foto de perfil">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-container">
+                <h2 class="section-title">Usuário</h2>
+                <form class="profile-form">
+
+                    <div class="form-group">
+                        <label for="username">Nome do usuário</label>
+                        <input type="text" id="username" placeholder="Digite seu nome de usuário">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name">Sobrenome</label>
+                        <input type="text" id="last_name" placeholder="Digite seu sobrenome">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="Digite seu email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" placeholder="Digite sua senha">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="birthdate">Data de Nascimento</label>
+                        <input type="date" id="birthdate">
+                    </div>
+                </form>
+            </section>
+
+            <section class="section-container">
+                <h2 class="section-title">Telefone</h2>
+                <form class="profile-form">
+                    <div class="form-group">
+                        <label for="country">Numero do pais</label>
+                        <input type="text" id="country" placeholder="+55">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ddd1">DDD1</label>
+                        <input type="text" id="ddd1" placeholder="11">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ddd2">DDD2</label>
+                        <input type="text" id="ddd2" placeholder="21">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone1">Telefone 1</label>
+                        <input type="text" id="phone1" placeholder="99999-9999">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone2">Telefone 2</label>
+                        <input type="text" id="phone2" placeholder="98888-8888">
+                    </div>
+                </form>
+            </section>
+
+            <section class="section-container">
+                <h2 class="section-title">Endereço</h2>
+                <form class="profile-form">
+                    <div class="form-group">
+                        <label for="cep">CEP</label>
+                        <input type="text" id="cep" placeholder="00000-000">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rua">Rua</label>
+                        <input type="text" id="rua" placeholder="Digite sua rua">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="complemento">Complemento</label>
+                        <input type="text" id="complemento" placeholder="Apartamento, bloco, etc.">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bairro">Bairro</label>
+                        <input type="text" id="bairro" placeholder="Digite seu bairro">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="numero">Número</label>
+                        <input type="text" id="numero" placeholder="Digite o número">
+                    </div>
+                </form>
+            </section>
+
+            <div class="section-actions">
+                <button class="btn-primary">Salvar</button>
+            </div>
+
+        </main>
+
+        <footer class="footer-buttons">
+            <a href="Tela_Estoque_Produtos.html"><button class="btn-secondary">Início</button></a>
+        </footer>
+    </div>
+<script>
+document.getElementById("menu-btn").addEventListener("click", function() {
+    const menu = document.getElementById("dropdown-menu");
+    menu.style.display = menu.style.display === "none" ? "block" : "none";
+});
+
+document.addEventListener("click", function(e) {
+    const menu = document.getElementById("dropdown-menu");
+    const button = document.getElementById("menu-btn");
+
+    if (!menu.contains(e.target) && !button.contains(e.target)) {
+        menu.style.display = "none";
+    }
+});
+</script>
+</body>
+</html>

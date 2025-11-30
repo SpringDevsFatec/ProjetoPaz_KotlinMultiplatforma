@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAZ - Cadastro</title>
+  <link rel="stylesheet" href="CSS/style.css">
+</head>
+<body>
+  <div id="login-page">
+    <div id="login-logo">
+      <img src="IMG/Logo.png" alt="Logo PAZ">
+      <h1 id="login-title">Cadastro</h1>
+    </div>
+
+    <form id="login-form">
+      <input type="text" id="register-name" placeholder="Nome completo" required>
+      <input type="email" id="register-email" placeholder="Email" required>
+      <input type="password" id="register-password" placeholder="Senha" required>
+      <button type="submit" id="login-button">Cadastrar</button>
+    </form>
+
+    <a href="index.html" id="create-account-link">Já tem uma conta? Entrar</a>
+  </div>
+  
+  <script>
+  document.getElementById("login-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+    window.location.href = "Tela_Estoque_Produtos.html";
+  });
+</script>
+</body>
+</html>

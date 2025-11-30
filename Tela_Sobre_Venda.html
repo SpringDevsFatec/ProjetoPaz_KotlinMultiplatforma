@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Venda</title>
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+<body>
+    <header class="header">
+        <div id="menu-btn" style="font-size: 28px; cursor: pointer; margin-left: 10px;">☰</div>
+        <div id="dropdown-menu" style="display:none; position:absolute; top:60px; left:10px; background:white; padding:15px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.2); z-index:999;">
+            <a href="Tela_Cadastrar.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Cadastrar</a>
+            <a href="Editar_Estoque.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Editar</a>
+            <a href="Tela_Sobre_Venda.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Histórico</a>
+            <a href="index.html" class="btn-secondary" style="display:block;">Sair</a>
+        </div>
+        <h1 style="margin: auto;">
+            <a href="Tela_Estoque_Produtos.html">
+                <img src="IMG/Logo.png" alt="Logo PAZ" style="height: 35px; vertical-align: middle;">
+            </a>
+        </h1>
+        <div class="profile-icon" style="margin-right: 15px;">
+            <a href="Tela_Editar_Usuario.html">👤</a>
+        </div>
+    </header>
+    <div class="page-container">
+        <main class="main-content">
+            
+            <section class="section-container">
+                <h2 class="section-title">Comprovantes</h2>
+                <div class="section-actions">
+                    <a href="Comprovantes.html"><button class="btn-secondary">Foto comprovante</button></a>
+                </div>
+            </section>
+
+            <section class="section-container">
+                <h2 class="section-title">Detalhes da venda</h2>
+                <div class="stats-card">
+                    <p><strong>Método de venda:</strong> Loja física</p>
+                    <p><strong>Status da venda:</strong> Concluída</p>
+                    <p><strong>Observação da venda:</strong> Cliente retirou o pedido no balcão.</p>
+                </div>
+            </section>
+
+            <section class="section-container">
+                <h2 class="section-title">Forma de pagamento</h2>
+                <div class="stats-card">
+                    <p><strong>Número total de pedidos:</strong> 6</p>
+                    <p><strong>Dinheiro:</strong> 1</p>
+                    <p><strong>Cartão:</strong> 3</p>
+                    <p><strong>Pix:</strong> 2</p>
+                </div>
+            </section>
+
+            <section class="section-container">
+                <h2 class="section-title">Pedidos</h2>
+                <table style="width:100%; border-collapse:collapse; text-align:left;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #ccc;">
+                            <th style="padding:10px;">PEDIDOS</th>
+                            <th style="padding:10px;">QTD</th>
+                            <th style="padding:10px;">VALOR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid #eee;">
+                            <td style="padding:10px;">Pedido01</td>
+                            <td style="padding:10px;">1</td>
+                            <td style="padding:10px;">R$ 3,00</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid #eee;">
+                            <td style="padding:10px;">Pedido02</td>
+                            <td style="padding:10px;">3</td>
+                            <td style="padding:10px;">R$ 9,00</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:10px;">Pedido03</td>
+                            <td style="padding:10px;">2</td>
+                            <td style="padding:10px;">R$ 6,00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <div class="section-actions">
+                <button class="btn-primary">Voltar para o Hub</button>
+            </div>
+
+        </main>
+    </div>
+<script>
+document.getElementById("menu-btn").addEventListener("click", function() {
+    const menu = document.getElementById("dropdown-menu");
+    menu.style.display = menu.style.display === "none" ? "block" : "none";
+});
+
+document.addEventListener("click", function(e) {
+    const menu = document.getElementById("dropdown-menu");
+    const button = document.getElementById("menu-btn");
+
+    if (!menu.contains(e.target) && !button.contains(e.target)) {
+        menu.style.display = "none";
+    }
+});
+</script>
+
+</body>
+</html>

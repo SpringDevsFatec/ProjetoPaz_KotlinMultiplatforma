@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAZ - Seus Produtos</title>
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+<body>
+
+<div class="page-container">
+    <header class="header">
+    <div id="menu-btn" style="font-size: 28px; cursor: pointer; margin-left: 10px;">☰</div>
+        <div id="dropdown-menu" style="display:none; position:absolute; top:60px; left:10px; background:white; padding:15px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.2); z-index:999;">
+            <a href="Tela_Cadastrar.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Cadastrar</a>
+            <a href="Editar_Estoque.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Editar</a>
+            <a href="Tela_Sobre_Venda.html" class="btn-secondary" style="display:block; margin-bottom:10px;">Histórico</a>
+            <a href="index.html" class="btn-secondary" style="display:block;">Sair</a>
+        </div>
+        <h1 style="margin: auto;">
+            <a href="Tela_Estoque_Produtos.html">
+                <img src="IMG/Logo.png" alt="Logo PAZ" style="height: 35px; vertical-align: middle;">
+            </a>
+        </h1>
+        <div class="profile-icon" style="margin-right: 15px;">
+            <a href="Tela_Editar_Usuario.html">👤</a>
+        </div>
+    </header>
+
+
+
+    <main class="main-content">
+        <section id="pedidos-section">
+            <h2 class="section-title">Pedidos Recentes</h2>
+            <div class="carousel-container">
+                <button class="carousel-btn prev" onclick="scrollCarousel('recentes', -1)"><</button>
+                <div class="carousel" id="carousel-recentes">
+                    <div class="carousel-item empty-msg" id="no-orders">
+                        Nenhum item adicionado ao pedido
+                    </div>
+                </div>
+                <button class="carousel-btn next" onclick="scrollCarousel('recentes', 1)">></button>
+            </div>
+            <div id="purchase-container" style="display:none; text-align:center; margin-top: 15px;">
+                <button id="purchase-button" class="btn-primary">🛒 Finalizar Compra</button>
+            </div>
+        </section>
+        <section>
+            <div class="search-bar">
+                <input id="searchInput" type="text" placeholder="Exemplo: garrafa de água">
+                <button class="filter-btn">⚲</button>
+            </div>
+
+            <div class="filter-bar">
+                <select id="categoryFilter">
+                    <option value="todas">Todas as Categorias</option>
+                    <option value="bebidas">Bebidas</option>
+                    <option value="doces">Doces</option>
+                    <option value="salgados">Salgados</option>
+                </select>
+
+                <button id="doacaoFilter" class="filter-toggle">🎁 Doações</button>
+                <button id="favFilter" class="filter-toggle">💛 Favoritos</button>
+            </div>
+        </section>
+
+        <section id="produtos-section">
+            <h2 class="section-title">Seus Produtos</h2>
+            <div id="productGrid" class="product-grid"></div>
+        </section>
+    </main>
+
+    <footer class="footer-buttons">
+        <!--<button class="btn-primary">Iniciar Autoatendimento</button>-->
+        <!--<button class="btn-secondary">Iniciar Venda</button>-->
+    </footer>
+</div>
+
+<script>
+const products = [
+    { id: 1, name: "Garrafa de Água", price: 5.50, category: "bebidas", doacao: false, img: "IMG/Café.png" },
+    { id: 2, name: "Brigadeiro", price: 3.20, category: "doces", doacao: true, img: "IMG/Café.png" },
+    { id: 3, name: "Coxinha", price: 7.80, category: "salgados", doacao: false, img: "IMG/Café.png" },
+    { id: 4, name: "Refrigerante", price: 6.00, category: "bebidas", doacao: false, img: "IMG/Café.png" },
+    { id: 5, name: "Pão de Queijo", price: 4.50, category: "salgados", doacao: true, img: "IMG/Café.png" },
+];
+
+let favorites = new Set();
+let showDoacoes = false;
+let showFavs = false;
+
+const pedidosCarousel = document.getElementById("carousel-recentes");
+const emptyMsg = document.getElementById("no-orders");
+const purchaseContainer = document.getElementById("purchase-container");
+const purchaseButton = document.getElementById("purchase-button");
+
+const grid = document.getElementById("productGrid");
+const searchInput = document.getElementById("searchInput");
+const categoryFilter = document.getElementById("categoryFilter");
+const doacaoFilter = document.getElementById("doacaoFilter");
+const favFilter = document.getElementById("favFilter");
+
+function renderProducts() {
+    grid.innerHTML = "";
+
+    const searchTerm = searchInput.value.toLowerCase();
+    const selectedCategory = categoryFilter.value;
+
+    let filtered = products.filter(p => {
+        const matchSearch = p.name.toLowerCase().includes(searchTerm);
+        const matchCategory = selectedCategory === "todas" || p.category === selectedCategory;
+        const matchDoacao = !showDoacoes || p.doacao;
+        const matchFav = !showFavs || favorites.has(p.id);
+        return matchSearch && matchCategory && matchDoacao && matchFav;
+    });
+
+    filtered.forEach(prod => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+            <img src="${prod.img}" alt="${prod.name}" style="width:100%; border-radius:8px;">
+            <div class="product-info">
+                <h2>${prod.name}</h2>
+                <p>R$ ${prod.price.toFixed(2)}</p>
+            </div>
+            <button class="btn-secondary add-to-cart">Adicionar</button>
+            <div class="favorite-icon ${favorites.has(prod.id) ? "active" : ""}">❤</div>
+        `;
+
+        const favIcon = card.querySelector(".favorite-icon");
+        favIcon.addEventListener("click", () => {
+            if (favorites.has(prod.id)) favorites.delete(prod.id);
+            else favorites.add(prod.id);
+            renderProducts();
+        });
+
+        const addButton = card.querySelector(".add-to-cart");
+        addButton.addEventListener("click", () => addToCart(prod));
+
+        grid.appendChild(card);
+    });
+}
+
+function addToCart(product) {
+    if (emptyMsg) emptyMsg.remove();
+
+    const existing = pedidosCarousel.querySelector(`[data-id="${product.id}"]`);
+    if (existing) {
+        existing.classList.add("highlight");
+        setTimeout(() => existing.classList.remove("highlight"), 600);
+        return;
+    }
+
+    const item = document.createElement("div");
+    item.classList.add("carousel-item");
+    item.dataset.id = product.id;
+    item.innerHTML = `
+        <img src="${product.img}" alt="${product.name}">
+        <strong>${product.name}</strong><br>
+        <small>R$ ${product.price.toFixed(2)}</small><br>
+        <button class="btn-secondary remove-from-cart">Remover</button>
+    `;
+
+    pedidosCarousel.appendChild(item);
+    updatePurchaseButtonVisibility();
+
+    item.querySelector(".remove-from-cart").addEventListener("click", () => {
+        item.remove();
+        updatePurchaseButtonVisibility();
+
+        if (pedidosCarousel.children.length === 0) {
+            const msg = document.createElement("div");
+            msg.classList.add("carousel-item", "empty-msg");
+            msg.id = "no-orders";
+            msg.textContent = "Nenhum item adicionado ao pedido";
+            pedidosCarousel.appendChild(msg);
+        }
+    });
+}
+
+function updatePurchaseButtonVisibility() {
+    const hasItems = pedidosCarousel.querySelectorAll(".carousel-item:not(.empty-msg)").length > 0;
+    purchaseContainer.style.display = hasItems ? "block" : "none";
+}
+
+purchaseButton.addEventListener("click", () => {
+    alert("Compra finalizada com sucesso! 🎉");
+});
+
+function scrollCarousel(type, direction) {
+    const carousel = document.getElementById(`carousel-${type}`);
+    const scrollAmount = 250;
+    carousel.scrollBy({ left: direction * scrollAmount, behavior: "smooth" });
+}
+
+searchInput.addEventListener("input", renderProducts);
+categoryFilter.addEventListener("change", renderProducts);
+doacaoFilter.addEventListener("click", () => {
+    showDoacoes = !showDoacoes;
+    doacaoFilter.classList.toggle("active", showDoacoes);
+    renderProducts();
+});
+favFilter.addEventListener("click", () => {
+    showFavs = !showFavs;
+    favFilter.classList.toggle("active", showFavs);
+    renderProducts();
+});
+
+renderProducts();
+
+document.getElementById("menu-btn").addEventListener("click", function() {
+    const menu = document.getElementById("dropdown-menu");
+    menu.style.display = menu.style.display === "none" ? "block" : "none";
+});
+
+document.addEventListener("click", function(e) {
+    const menu = document.getElementById("dropdown-menu");
+    const button = document.getElementById("menu-btn");
+
+    if (!menu.contains(e.target) && !button.contains(e.target)) {
+        menu.style.display = "none";
+    }
+});
+</script>
+
+</body>
+</html>
