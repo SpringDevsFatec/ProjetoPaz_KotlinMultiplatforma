@@ -85,9 +85,35 @@ object ApiClient {
     }
 
     // --- PRODUTOS ---
-    suspend fun getAllProducts(): List<Product> = try { client.get("$baseUrl/api/product").body() } catch (e: Exception) { emptyList() }
-    suspend fun createProduct(req: ProductRequest) = try { client.post("$baseUrl/api/product") { setBody(req) }.status.isSuccess() } catch (e: Exception) { false }
-    suspend fun updateProduct(id: Long, req: ProductRequest) = try { client.put("$baseUrl/api/product/$id") { setBody(req) }.status.isSuccess() } catch (e: Exception) { false }
+    suspend fun getAllProducts(): List<Product> = try {
+        client.get("$baseUrl/api/product").body()
+    } catch (e: Exception) {
+        println("Erro ao buscar produtos: ${e.message}")
+        emptyList()
+    }
+
+    suspend fun createProduct(req: ProductRequest): Product? {
+        return try {
+            val response = client.post("$baseUrl/api/product") { setBody(req) }
+            if (response.status.isSuccess()) response.body() else null
+        } catch (e: Exception) { null }
+    }
+
+    suspend fun updateProduct(id: Long, req: ProductRequest): Product? {
+        return try {
+            val response = client.put("$baseUrl/api/product/$id") { setBody(req) }
+            if (response.status.isSuccess()) response.body() else null
+        } catch (e: Exception) { null }
+    }
+
+    // Upload de Imagens (É feito DEPOIS de criar o produto)
+    suspend fun uploadProductImages(productId: Long, base64Images: List<String>): Boolean {
+        return try {
+            val batch = ImageBatchDTO(base64Images.map { ImageDTOItem(it) })
+            client.post("$baseUrl/api/product/img/$productId") { setBody(batch) }.status.isSuccess()
+        } catch (e: Exception) { false }
+    }
+
     suspend fun deleteProduct(id: Long) = try { client.delete("$baseUrl/api/product/$id").status.isSuccess() } catch (e: Exception) { false }
 
     // --- CATEGORIAS ---
@@ -144,6 +170,5 @@ object ApiClient {
     suspend fun createOrder(saleId: Long, req: OrderRequest) = try { client.post("$baseUrl/api/order/$saleId") { setBody(req) }.status.isSuccess() } catch (e: Exception) { false }
 
     // --- SENSOR (IOT) ---
-    // Atenção: A classe SensorData deve estar definida em Models.kt com @Serializable
     suspend fun getSensorData(): SensorData? = try { client.get("$baseUrl/api/sensor/current").body() } catch (e: Exception) { null }
 }

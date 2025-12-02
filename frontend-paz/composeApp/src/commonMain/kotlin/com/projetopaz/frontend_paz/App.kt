@@ -7,13 +7,15 @@ import com.projetopaz.frontend_paz.model.Product
 import com.projetopaz.frontend_paz.model.Supplier
 import com.projetopaz.frontend_paz.theme.PazTheme
 import com.projetopaz.frontend_paz.ui.*
+import com.projetopaz.frontend_paz.ui.SupplierListScreen
+import com.projetopaz.frontend_paz.ui.SupplierFormScreen
 
 enum class Screen {
     Login, Register, Home,
     ProductList, ProductForm,
     CommunityList, CommunityForm,
     CategoryList, CategoryForm,
-    SupplierList, SupplierForm,
+    SupplierList, SupplierForm, // <--- Adicionado aqui
     UserProfile,
     SaleConfig, Pos, SaleDetails
 }
@@ -27,18 +29,18 @@ fun App() {
         var productToEdit by remember { mutableStateOf<Product?>(null) }
         var communityToEdit by remember { mutableStateOf<Community?>(null) }
         var categoryToEdit by remember { mutableStateOf<Category?>(null) }
-        var supplierToEdit by remember { mutableStateOf<Supplier?>(null) }
+        var supplierToEdit by remember { mutableStateOf<Supplier?>(null) } // <--- Variável do Fornecedor
 
         // Vendas
         var currentSaleCommunityId by remember { mutableStateOf<Long?>(null) }
         var currentSaleIsAuto by remember { mutableStateOf(false) }
         var selectedSale by remember { mutableStateOf<com.projetopaz.frontend_paz.model.SaleResponse?>(null) }
 
-        // Refresh triggers
+        // Refresh triggers (Gatilhos para atualizar as listas)
         var refreshProducts by remember { mutableStateOf(0) }
         var refreshCommunities by remember { mutableStateOf(0) }
         var refreshCategories by remember { mutableStateOf(0) }
-        var refreshSuppliers by remember { mutableStateOf(0) } // <--- NOVO
+        var refreshSuppliers by remember { mutableStateOf(0) } // <--- Variável nova para o Fornecedor
 
         when (currentScreen) {
             Screen.Login -> LoginScreen({ currentScreen = Screen.Home }, { currentScreen = Screen.Register })
@@ -50,8 +52,8 @@ fun App() {
                 onNavigateToSales = { currentScreen = Screen.SaleConfig },
                 onNavigateToDetails = { sale -> selectedSale = sale; currentScreen = Screen.SaleDetails },
                 onNavigateToCategories = { currentScreen = Screen.CategoryList },
-                onNavigateToSuppliers = { currentScreen = Screen.SupplierList }, // <--- LIGADO
-                onNavigateToProfile = { currentScreen = Screen.UserProfile }, // <--- LIGADO
+                onNavigateToSuppliers = { currentScreen = Screen.SupplierList }, // Navegação para Fornecedor
+                onNavigateToProfile = { currentScreen = Screen.UserProfile },
                 onLogout = { currentScreen = Screen.Login }
             )
 
@@ -60,7 +62,7 @@ fun App() {
             Screen.Pos -> if (currentSaleCommunityId != null) PosScreen(currentSaleCommunityId!!, currentSaleIsAuto, { currentScreen = Screen.Home }, { currentScreen = Screen.Home }) else currentScreen = Screen.Home
             Screen.SaleDetails -> if (selectedSale != null) SaleDetailsScreen(selectedSale!!, { currentScreen = Screen.Home })
 
-            // --- CRUDS ---
+            // --- CRUDS EXISTENTES ---
             Screen.ProductList -> ProductListScreen(refreshProducts, { currentScreen = Screen.Home }, { productToEdit = null; currentScreen = Screen.ProductForm }, { productToEdit = it; currentScreen = Screen.ProductForm })
             Screen.ProductForm -> ProductFormScreen(productToEdit, { currentScreen = Screen.ProductList }, { refreshProducts++; currentScreen = Screen.ProductList })
 
@@ -70,9 +72,19 @@ fun App() {
             Screen.CategoryList -> CategoryListScreen(refreshCategories, { currentScreen = Screen.Home }, { categoryToEdit = null; currentScreen = Screen.CategoryForm }, { categoryToEdit = it; currentScreen = Screen.CategoryForm })
             Screen.CategoryForm -> CategoryFormScreen(categoryToEdit, { currentScreen = Screen.CategoryList }, { refreshCategories++; currentScreen = Screen.CategoryList })
 
-            // --- NOVOS CRUDS ---
-            Screen.SupplierList -> SupplierListScreen(refreshSuppliers, { currentScreen = Screen.Home }, { supplierToEdit = null; currentScreen = Screen.SupplierForm }, { supplierToEdit = it; currentScreen = Screen.SupplierForm })
-            Screen.SupplierForm -> SupplierFormScreen(supplierToEdit, { currentScreen = Screen.SupplierList }, { refreshSuppliers++; currentScreen = Screen.SupplierList })
+            // --- CRUD FORNECEDOR (Onde estava dando erro) ---
+            Screen.SupplierList -> SupplierListScreen(
+                key = refreshSuppliers,
+                onBackClick = { currentScreen = Screen.Home },
+                onAddClick = { supplierToEdit = null; currentScreen = Screen.SupplierForm },
+                onEditClick = { supplierToEdit = it; currentScreen = Screen.SupplierForm } // O 'it' aqui é o fornecedor clicado
+            )
+
+            Screen.SupplierForm -> SupplierFormScreen(
+                supplierToEdit = supplierToEdit,
+                onBackClick = { currentScreen = Screen.SupplierList },
+                onSaved = { refreshSuppliers++; currentScreen = Screen.SupplierList }
+            )
 
             Screen.UserProfile -> UserProfileScreen({ currentScreen = Screen.Home })
         }

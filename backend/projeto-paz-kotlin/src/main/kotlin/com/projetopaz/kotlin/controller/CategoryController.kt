@@ -1,53 +1,79 @@
 package com.projetopaz.kotlin.controller
 
-import com.projetopaz.kotlin.model.Category
+import com.projetopaz.kotlin.dto.CategoryDTO
+import com.projetopaz.kotlin.dto.ImageUploadDTO
+import com.projetopaz.kotlin.mapper.CategoryMapper
+import com.projetopaz.kotlin.security.TokenService
 import com.projetopaz.kotlin.service.CategoryService
-import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/category")
 class CategoryController(
-    private val categoryService: CategoryService
+    private val service: CategoryService,
+    private val jwtUtil: TokenService
 ) {
 
+    // CREATE (Com correção do ID)
     @PostMapping
-    fun createCategory(@Valid @RequestBody category: Category): ResponseEntity<Category> {
-        // CORREÇÃO: Força o ID ser nulo para o JPA criar (INSERT) em vez de atualizar (UPDATE)
-        val newCategory = category.copy(id = null)
-        val savedCategory = categoryService.save(newCategory)
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory)
+    fun create(
+        @RequestHeader("Authorization") token: String,
+        @RequestBody dto: CategoryDTO
+    ): ResponseEntity<Any> {
+        // O "?: 0L" garante que se o token não tiver ID, usa 0 (evita o erro TypeMismatch)
+        val userId = jwtUtil.extractUserId(token) ?: 0L
+        val result = service.create(dto, userId)
+        return ResponseEntity.ok(CategoryMapper.toResponse(result))
     }
 
-    @GetMapping
-    fun getAllCategories(): ResponseEntity<List<Category>> {
-        val categories = categoryService.findAll()
-        return ResponseEntity.ok(categories)
+    // UPDATE FIELDS
+    @PutMapping("/{id}")
+    fun updateFields(
+        @PathVariable id: Long,
+        @RequestHeader("Authorization") token: String,
+        @RequestBody dto: CategoryDTO
+    ): ResponseEntity<Any> {
+        val userId = jwtUtil.extractUserId(token) ?: 0L
+        val updated = service.updateFields(id, dto, userId)
+        return updated?.let { ResponseEntity.ok(CategoryMapper.toResponse(it)) }
+            ?: ResponseEntity.notFound().build()
     }
+
+    // DELETE
+    @DeleteMapping("/{id}")
+    fun delete(
+        @PathVariable id: Long,
+        @RequestHeader("Authorization") token: String
+    ): ResponseEntity<Any> {
+        val userId = jwtUtil.extractUserId(token) ?: 0L
+        val deleted = service.delete(id, userId)
+        return if (deleted) ResponseEntity.ok("Categoria inativada com sucesso.")
+        else ResponseEntity.notFound().build()
+    }
+
+    // MÉTODOS PÚBLICOS (GET)
+    @GetMapping
+    fun findAll(): ResponseEntity<Any> =
+        ResponseEntity.ok(service.findAll().map { CategoryMapper.toResponse(it) })
 
     @GetMapping("/{id}")
-    fun getCategoryById(@PathVariable id: Long): ResponseEntity<Category> {
-        val category = categoryService.findById(id)
-        return category?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
+    fun findById(@PathVariable id: Long): ResponseEntity<Any> {
+        val category = service.findById(id)
+        return category?.let { ResponseEntity.ok(CategoryMapper.toResponse(it)) }
+            ?: ResponseEntity.notFound().build()
     }
 
-    @PutMapping("/{id}")
-    fun updateCategory(@PathVariable id: Long, @Valid @RequestBody categoryToUpdate: Category): ResponseEntity<Category> {
-        return categoryService.findById(id)?.let {
-            val updatedCategory = it.copy(
-                name = categoryToUpdate.name,
-                description = categoryToUpdate.description,
-                active = categoryToUpdate.active
-            )
-            ResponseEntity.ok(categoryService.save(updatedCategory))
-        } ?: ResponseEntity.notFound().build()
-    }
-
-    @DeleteMapping("/{id}")
-    fun deleteCategory(@PathVariable id: Long): ResponseEntity<Void> {
-        categoryService.delete(id)
-        return ResponseEntity.noContent().build()
+    // UPDATE IMAGE (Se ainda usar este endpoint específico)
+    @PutMapping("/{id}/image")
+    fun updateImage(
+        @PathVariable id: Long,
+        @RequestHeader("Authorization") token: String,
+        @RequestBody dto: ImageUploadDTO
+    ): ResponseEntity<Any> {
+        val userId = jwtUtil.extractUserId(token) ?: 0L
+        val updated = service.updateImage(id, dto, userId)
+        return updated?.let { ResponseEntity.ok(CategoryMapper.toResponse(it)) }
+            ?: ResponseEntity.notFound().build()
     }
 }

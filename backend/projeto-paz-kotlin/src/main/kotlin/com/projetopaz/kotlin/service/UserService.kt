@@ -29,7 +29,6 @@ class UserService(
     // New method used by AuthController: encodes password before saving
     fun createUserEncoded(dto: UserCreateDTO): User {
         val entity = UserMapper.toEntity(dto)
-        println("chegou service")
         entity.password = passwordEncoder.encode(dto.password)
         println(entity.password)
         return userRepository.save(entity)

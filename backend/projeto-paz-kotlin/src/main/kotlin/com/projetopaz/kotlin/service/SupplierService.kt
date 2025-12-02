@@ -1,48 +1,90 @@
 package com.projetopaz.kotlin.service
 
+import com.projetopaz.kotlin.dto.SupplierDTO
+import com.projetopaz.kotlin.mapper.SupplierMapper
 import com.projetopaz.kotlin.model.Supplier
+import com.projetopaz.kotlin.model.SupplierAddress
+import com.projetopaz.kotlin.model.CellphoneSupplier
 import com.projetopaz.kotlin.repository.SupplierRepository
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
-import java.time.LocalDateTime
+import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 @Service
 class SupplierService(
     private val supplierRepository: SupplierRepository
 ) {
 
-    // Regra de negócio: Retornar apenas fornecedores ativos
-    fun findAll(): List<Supplier> {
-        return supplierRepository.findAll().filter { it.active }
-    }
+    @Transactional
+    fun create(dto: SupplierDTO): Supplier {
+        val supplier = SupplierMapper.toEntity(dto)
 
-    fun findById(id: Long): Supplier {
-        return supplierRepository.findById(id)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Fornecedor com ID $id não encontrado") }
-    }
+        supplier.addresses.forEach { it.supplier = supplier }
+        supplier.cellphones.forEach { it.supplier = supplier }
 
-    fun save(supplier: Supplier): Supplier {
         return supplierRepository.save(supplier)
     }
 
-    fun update(id: Long, supplierDetails: Supplier): Supplier {
-        val existingSupplier = findById(id)
-        val updatedSupplier = existingSupplier.copy(
-            name = supplierDetails.name,
-            contactName = supplierDetails.contactName,
-            phone = supplierDetails.phone,
-            email = supplierDetails.email,
-            active = supplierDetails.active,
-            updatedAt = LocalDateTime.now()
-        )
-        return supplierRepository.save(updatedSupplier)
+    @Transactional
+    fun update(id: Long, dto: SupplierDTO): Supplier? {
+        val existing = supplierRepository.findByIdAndStatus(id, 1) ?: return null
+
+        // Atualiza dados simples
+        existing.name = dto.name
+        existing.cnpj = dto.cnpj
+        existing.type = dto.type
+        existing.occupation = dto.occupation
+        existing.observation = dto.observation
+        existing.updatedAt = Instant.now()
+
+        // Atualiza Endereços (Limpa antigos e cria novos)
+        existing.addresses.clear()
+        dto.addresses.forEach { aDto ->
+            val addr = SupplierAddress(
+                street = aDto.street,
+                number = aDto.number,
+                complement = aDto.complement,
+                neighborhood = aDto.neighborhood,
+                cep = aDto.cep,
+                city = aDto.city,
+                state = aDto.state,
+                supplier = existing // Vínculo obrigatório
+            )
+            existing.addresses.add(addr)
+        }
+
+        // Atualiza Telefones
+        existing.cellphones.clear()
+        dto.cellphones.forEach { cDto ->
+            val cp = CellphoneSupplier(
+                countryNumber = cDto.countryNumber,
+                ddd1 = cDto.ddd1,
+                ddd2 = cDto.ddd2,
+                phone1 = cDto.phone1,
+                phone2 = cDto.phone2,
+                supplier = existing // Vínculo obrigatório
+            )
+            existing.cellphones.add(cp)
+        }
+
+        return supplierRepository.save(existing)
     }
 
-    // Regra de negócio: Inativar o fornecedor, não deletar
-    fun delete(id: Long) {
-        val supplier = findById(id)
-        supplier.active = false
-        supplierRepository.save(supplier)
+    @Transactional
+    fun deleteLogic(id: Long): Boolean {
+        val existing = supplierRepository.findByIdAndStatus(id, 1) ?: return false
+        existing.status = 0
+        existing.updatedAt = Instant.now()
+
+        existing.addresses.forEach { it.status = 0 }
+
+        supplierRepository.save(existing)
+        return true
     }
+
+    @Transactional(readOnly = true)
+    fun getAll(): List<Supplier> = supplierRepository.findAllByStatus(1)
+
+    @Transactional(readOnly = true)
+    fun getById(id: Long): Supplier? = supplierRepository.findByIdAndStatus(id, 1)
 }

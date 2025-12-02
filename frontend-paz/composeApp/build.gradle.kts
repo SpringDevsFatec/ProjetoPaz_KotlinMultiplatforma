@@ -33,7 +33,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-            implementation("io.ktor:ktor-client-android:2.3.12")
+            implementation("io.ktor:ktor-client-android:3.3.0")
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
         }
@@ -45,9 +45,15 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation("io.ktor:ktor-client-core:2.3.12")
-            implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+
+            implementation("io.ktor:ktor-client-core:3.3.0")
+            implementation("io.ktor:ktor-client-content-negotiation:3.3.0")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.0")
+
+            implementation("io.github.vinceglb:filekit-compose:0.8.8")
+
+            implementation("io.coil-kt.coil3:coil-compose:3.0.4")
+            implementation("io.coil-kt.coil3:coil-network-ktor3:3.0.4")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -55,13 +61,16 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
-            implementation("io.ktor:ktor-client-cio:2.3.12")
+            // ATUALIZADO: Ktor 3.3.0
+            implementation("io.ktor:ktor-client-cio:3.3.0")
         }
         jsMain.dependencies {
-            implementation("io.ktor:ktor-client-js:2.3.12")
+            // ATUALIZADO: Ktor 3.3.0
+            implementation("io.ktor:ktor-client-js:3.3.0")
         }
         iosMain.dependencies {
-            implementation("io.ktor:ktor-client-darwin:2.3.12")
+            // ATUALIZADO: Ktor 3.3.0
+            implementation("io.ktor:ktor-client-darwin:3.3.0")
         }
     }
 }
@@ -116,5 +125,3 @@ kotlin {
         binaries.executable()
     }
 }
-
-

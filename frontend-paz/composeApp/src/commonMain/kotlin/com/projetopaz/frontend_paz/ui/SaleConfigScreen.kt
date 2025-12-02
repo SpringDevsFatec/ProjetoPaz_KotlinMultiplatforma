@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -13,11 +12,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clip
 import com.projetopaz.frontend_paz.model.Community
 import com.projetopaz.frontend_paz.model.Product
 import com.projetopaz.frontend_paz.network.ApiClient
@@ -44,6 +45,7 @@ fun SaleConfigScreen(
     var isAutoService by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
+    // Carrega dados ao abrir a tela
     LaunchedEffect(Unit) {
         communities = ApiClient.getAllCommunities()
         products = ApiClient.getAllProducts()
@@ -111,7 +113,7 @@ fun SaleConfigScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Dropdown de Comunidade (Estilo Card Branco)
+            // Dropdown de Comunidade
             Text("Comunidade", fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -147,7 +149,7 @@ fun SaleConfigScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Lista de Produtos "Destaque" (Mock visual baseado no Figma)
+            // Lista de Produtos "Destaque"
             Text("Produtos em Destaque", fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -155,36 +157,52 @@ fun SaleConfigScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                items(products.take(3)) { product -> // Mostra só os 3 primeiros como exemplo
+                // Exibe apenas os 3 primeiros para não poluir a tela de config
+                items(products.take(3)) { product ->
                     Card(
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE0E0E0)), // Cinza igual ao figma
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE0E0E0)),
                         modifier = Modifier.fillMaxWidth().border(1.dp, PazBlack, RoundedCornerShape(12.dp))
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Imagem
+                            // Imagem com Coil (Já atualizado para ver a foto)
                             Box(
                                 modifier = Modifier
                                     .size(60.dp)
                                     .background(PazWhite, RoundedCornerShape(8.dp))
-                                    .border(1.dp, PazBlack, RoundedCornerShape(8.dp)),
+                                    .border(1.dp, PazBlack, RoundedCornerShape(8.dp))
+                                    .clip(RoundedCornerShape(8.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Default.Image, null, tint = Color.Gray)
+                                if (product.images.isNotEmpty()) {
+                                    AsyncImage(
+                                        model = product.images[0].url,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    Icon(Icons.Default.Image, null, tint = Color.Gray)
+                                }
                             }
 
                             Spacer(modifier = Modifier.width(12.dp))
 
                             Column(modifier = Modifier.weight(1f)) {
                                 Text("Nome: ${product.name}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Text("Preço: R$ ${product.price}", fontSize = 12.sp)
-                                Text("Categoria: ${product.category.name}", fontSize = 12.sp)
+
+                                // CORRIGIDO: price -> salePrice
+                                Text("Preço: R$ ${product.salePrice}", fontSize = 12.sp)
+
+                                // CORRIGIDO: category -> categories (Lista)
+                                val catName = product.categories.firstOrNull()?.name ?: "Sem Categoria"
+                                Text("Categoria: $catName", fontSize = 12.sp)
                             }
 
-                            IconButton(onClick = { /* Editar */ }) {
+                            IconButton(onClick = { /* Ação futura */ }) {
                                 Icon(Icons.Default.Edit, null, tint = PazBlack)
                             }
                         }

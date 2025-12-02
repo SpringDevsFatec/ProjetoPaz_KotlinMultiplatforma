@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -24,10 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.projetopaz.frontend_paz.model.*
 import com.projetopaz.frontend_paz.network.ApiClient
 import com.projetopaz.frontend_paz.theme.PazBlack
-import com.projetopaz.frontend_paz.theme.PazGrayBgEnd
 import com.projetopaz.frontend_paz.theme.PazWhite
 import kotlinx.coroutines.launch
 
@@ -46,19 +45,19 @@ fun PosScreen(
 
     // Dados
     var products by remember { mutableStateOf<List<Product>>(emptyList()) }
-    // Carrinho agora é uma lista observável para atualizar a UI corretamente
+    // Carrinho
     var cart by remember { mutableStateOf<List<CartItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
     // Estado da Venda
     var currentSaleId by remember { mutableStateOf<Long?>(null) }
-    var selectedPaymentMethod by remember { mutableStateOf("DINHEIRO") } // Padrão
+    var selectedPaymentMethod by remember { mutableStateOf("DINHEIRO") }
 
     // Filtro de busca
     var searchText by remember { mutableStateOf("") }
 
-    // Totais
-    val totalAmount = cart.sumOf { it.product.price * it.quantity }
+    // Totais (CORRIGIDO: usa 'cart' e 'salePrice')
+    val totalAmount = cart.sumOf { it.product.salePrice * it.quantity }
 
     // Inicialização
     LaunchedEffect(Unit) {
@@ -76,11 +75,10 @@ fun PosScreen(
         isLoading = false
     }
 
-    val filteredProducts = products.filter { it.name?.contains(searchText, ignoreCase = true) == true }
+    val filteredProducts = products.filter { it.name.contains(searchText, ignoreCase = true) }
 
     Scaffold(
         topBar = {
-            // Header Escuro com Temperatura igual ao Figma
             Column(modifier = Modifier.fillMaxWidth().background(PazBlack)) {
                 Box(
                     modifier = Modifier
@@ -122,7 +120,7 @@ fun PosScreen(
                     onValueChange = { searchText = it },
                     placeholder = { Text("Buscar produto...") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(50), // Bem redondo
+                    shape = RoundedCornerShape(50),
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedContainerColor = Color(0xFFF5F5F5),
                         focusedContainerColor = Color(0xFFF5F5F5),
@@ -133,7 +131,7 @@ fun PosScreen(
                 )
             }
 
-            // --- GRADE DE PRODUTOS (Scrollável) ---
+            // --- GRADE DE PRODUTOS ---
             Box(modifier = Modifier.weight(1f)) {
                 if (isLoading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = PazBlack)
@@ -146,7 +144,7 @@ fun PosScreen(
                     ) {
                         items(filteredProducts) { product ->
                             ProductGridItem(product) {
-                                // Lógica de Adicionar: Se já existe, +1, senão cria
+                                // Adicionar ao carrinho
                                 val existingIndex = cart.indexOfFirst { it.product.id == product.id }
                                 if (existingIndex >= 0) {
                                     val updatedCart = cart.toMutableList()
@@ -161,10 +159,10 @@ fun PosScreen(
                 }
             }
 
-            // --- CARRINHO FIXO NO RODAPÉ (Estilo Figma Escuro) ---
+            // --- CARRINHO FIXO ---
             if (cart.isNotEmpty()) {
                 Surface(
-                    color = Color(0xFF2D2D35), // Cor escura do Figma
+                    color = Color(0xFF2D2D35),
                     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -177,25 +175,25 @@ fun PosScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Cabeçalho da Tabela do Carrinho
+                        // Cabeçalho
                         Row(Modifier.fillMaxWidth()) {
                             Text("Produtos", Modifier.weight(1.5f), color = PazWhite, fontSize = 12.sp)
-                            Text("quantidade", Modifier.weight(1f), color = PazWhite, fontSize = 12.sp, textAlign = TextAlign.Center)
-                            Text("preço produto", Modifier.weight(1f), color = PazWhite, fontSize = 12.sp, textAlign = TextAlign.End)
+                            Text("Qtd", Modifier.weight(1f), color = PazWhite, fontSize = 12.sp, textAlign = TextAlign.Center)
+                            Text("Preço", Modifier.weight(1f), color = PazWhite, fontSize = 12.sp, textAlign = TextAlign.End)
                         }
 
                         Divider(color = Color.Gray, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp))
 
-                        // Lista de Itens no Carrinho (Limitada a altura pequena pra não ocupar a tela toda)
+                        // Lista de Itens
                         LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
                             items(cart) { item ->
                                 Row(
                                     Modifier.fillMaxWidth().padding(vertical = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(item.product.name ?: "", Modifier.weight(1.5f), color = PazWhite, fontSize = 14.sp)
+                                    Text(item.product.name, Modifier.weight(1.5f), color = PazWhite, fontSize = 14.sp)
 
-                                    // Controle de Quantidade (- 1 +)
+                                    // Controle de Quantidade
                                     Row(
                                         Modifier.weight(1f),
                                         horizontalArrangement = Arrangement.Center,
@@ -208,7 +206,6 @@ fun PosScreen(
                                                 newCart[idx] = item.copy(quantity = item.quantity - 1)
                                                 cart = newCart
                                             } else {
-                                                // Remove se for 0
                                                 cart = cart - item
                                             }
                                         }.padding(horizontal = 8.dp))
@@ -223,7 +220,8 @@ fun PosScreen(
                                         }.padding(horizontal = 8.dp))
                                     }
 
-                                    Text("${item.product.price * item.quantity}$", Modifier.weight(1f), color = PazWhite, textAlign = TextAlign.End)
+                                    // CORRIGIDO: salePrice
+                                    Text("R$ ${item.product.salePrice * item.quantity}", Modifier.weight(1f), color = PazWhite, textAlign = TextAlign.End)
                                 }
                             }
                         }
@@ -233,7 +231,6 @@ fun PosScreen(
                         Text("Forma de pagamento:", color = PazWhite, fontSize = 12.sp)
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Seleção de Pagamento (Radio Buttons)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -246,7 +243,7 @@ fun PosScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Text(
-                            "Total: ${totalAmount}$",
+                            "Total: R$ $totalAmount",
                             color = PazWhite,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
@@ -260,7 +257,8 @@ fun PosScreen(
                             onClick = {
                                 if (currentSaleId != null) {
                                     coroutineScope.launch {
-                                        val itemsReq = cart.map { ItemOrderRequest(it.product.id, it.quantity, it.product.price) }
+                                        // CORRIGIDO: salePrice
+                                        val itemsReq = cart.map { ItemOrderRequest(it.product.id, it.quantity, it.product.salePrice) }
                                         val orderReq = OrderRequest(selectedPaymentMethod, itemsReq)
 
                                         if (ApiClient.createOrder(currentSaleId!!, orderReq)) {
@@ -270,7 +268,7 @@ fun PosScreen(
                                 }
                             },
                             modifier = Modifier.fillMaxWidth().height(50.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF464F41)), // Verde musgo do Figma
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF464F41)),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Text("Finalizar Pedido", color = PazWhite, fontWeight = FontWeight.Bold)
@@ -306,7 +304,7 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
             modifier = Modifier.padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Placeholder de Imagem
+            // Imagem com Coil
             Box(
                 modifier = Modifier
                     .size(80.dp)
@@ -315,18 +313,27 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
                     .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                // Tenta mostrar a imagem se tiver URL, senão ícone
-                Icon(Icons.Default.Coffee, null, tint = Color(0xFF5D4037), modifier = Modifier.size(40.dp))
+                if (product.images.isNotEmpty()) {
+                    AsyncImage(
+                        model = product.images[0].url,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(Icons.Default.Coffee, null, tint = Color(0xFF5D4037), modifier = Modifier.size(40.dp))
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(product.name ?: "Produto", fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1)
-            Text("${product.price}$", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
+            Text(product.name, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1)
+
+            // CORRIGIDO: salePrice
+            Text("R$ ${product.salePrice}", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Botão "+" preto largo
             Button(
                 onClick = onClick,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2D2D35)),

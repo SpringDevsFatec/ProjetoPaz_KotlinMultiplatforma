@@ -1,5 +1,6 @@
 package com.projetopaz.kotlin.dto
 
 data class ImageBatchDTO(
-    val imgs: Map<String, ImageSaleDTO>
+    val images: List<ImageDTOItem> = listOf()
 )
+

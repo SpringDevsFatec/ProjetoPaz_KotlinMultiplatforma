@@ -5,76 +5,108 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 
+// --- UTILITÁRIO GENÉRICO PARA MÁSCARAS ---
+class MaskVisualTransformation(private val mask: String) : VisualTransformation {
+
+    override fun filter(text: AnnotatedString): TransformedText {
+        var out = ""
+        var maskIndex = 0
+        var textIndex = 0
+
+        while (textIndex < text.text.length && maskIndex < mask.length) {
+            if (mask[maskIndex] != '#') {
+                out += mask[maskIndex]
+                maskIndex++
+            } else {
+                out += text.text[textIndex]
+                maskIndex++
+                textIndex++
+            }
+        }
+
+        return TransformedText(AnnotatedString(out), object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                var offsetTotal = 0
+                var count = 0
+                for (i in mask.indices) {
+                    if (count == offset) return offsetTotal
+                    if (mask[i] == '#') {
+                        count++
+                    }
+                    offsetTotal++
+                }
+                return offsetTotal
+            }
+
+            override fun transformedToOriginal(offset: Int): Int {
+                var offsetTotal = 0
+                var count = 0
+                for (i in mask.indices) {
+                    if (offsetTotal == offset) return count
+                    if (mask[i] == '#') {
+                        count++
+                    }
+                    offsetTotal++
+                }
+                return count
+            }
+        })
+    }
+}
+
+// --- MÁSCARAS ESPECÍFICAS ---
+
+// Data: 00/00/0000
 class DateTransformation : VisualTransformation {
-    override fun filter(text: AnnotatedString): TransformedText {
-        // Remove tudo que não é dígito e limita a 8 caracteres (DDMMAAAA)
-        val trimmed = text.text.filter { it.isDigit() }.take(8)
-
-        var output = ""
-        for (i in trimmed.indices) {
-            output += trimmed[i]
-            // Adiciona barra após o dia (2 chars) e após o mês (4 chars)
-            if (i == 1 || i == 3) output += "/"
-        }
-
-        val dateOffsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int {
-                if (offset <= 1) return offset
-                if (offset <= 3) return offset + 1
-                if (offset <= 8) return offset + 2
-                return 10
-            }
-
-            override fun transformedToOriginal(offset: Int): Int {
-                if (offset <= 2) return offset
-                if (offset <= 5) return offset - 1
-                if (offset <= 10) return offset - 2
-                return 8
-            }
-        }
-
-        return TransformedText(AnnotatedString(output), dateOffsetMapping)
-    }
+    private val mask = MaskVisualTransformation("##/##/####")
+    override fun filter(text: AnnotatedString) = mask.filter(text)
 }
 
+// CEP: 00000-000
 class CepTransformation : VisualTransformation {
-    override fun filter(text: AnnotatedString): TransformedText {
-        // Limita a 8 dígitos
-        val trimmed = text.text.filter { it.isDigit() }.take(8)
-
-        var output = ""
-        for (i in trimmed.indices) {
-            output += trimmed[i]
-            // Adiciona o traço após o 5º dígito (índice 4)
-            if (i == 4) output += "-"
-        }
-
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int {
-                if (offset <= 4) return offset
-                if (offset <= 8) return offset + 1
-                return 9
-            }
-
-            override fun transformedToOriginal(offset: Int): Int {
-                if (offset <= 5) return offset
-                if (offset <= 9) return offset - 1
-                return 8
-            }
-        }
-
-        return TransformedText(AnnotatedString(output), offsetMapping)
-    }
+    private val mask = MaskVisualTransformation("#####-###")
+    override fun filter(text: AnnotatedString) = mask.filter(text)
 }
 
-// Função utilitária para converter "23/03/2005" -> "2005-03-23" (Backend)
+// Apenas Número Celular (9 dígitos): 00000-0000
+class CellNumberTransformation : VisualTransformation {
+    private val mask = MaskVisualTransformation("#####-####")
+    override fun filter(text: AnnotatedString) = mask.filter(text)
+}
+
+// CNPJ: 00.000.000/0000-00
+class CnpjTransformation : VisualTransformation {
+    private val mask = MaskVisualTransformation("##.###.###/####-##")
+    override fun filter(text: AnnotatedString) = mask.filter(text)
+}
+
+// --- FUNÇÕES UTILITÁRIAS DE DATA ---
+
+// 1. Converte da TELA (25/12/2025) para o BACKEND (2025-12-25)
 fun convertDateToBackendFormat(dateInput: String): String {
     val clean = dateInput.filter { it.isDigit() }
     if (clean.length != 8) return ""
-
     val day = clean.substring(0, 2)
     val month = clean.substring(2, 4)
     val year = clean.substring(4, 8)
-
     return "$year-$month-$day"
+}
+
+// 2. Converte do BACKEND (2025-12-25) para a TELA (25122025)
+// Essa função limpa a formatação do banco para a máscara funcionar direito na edição
+fun formatBackendDateToUi(date: String?): String {
+    if (date.isNullOrBlank()) return ""
+
+    // Tenta separar por traço (formato padrão yyyy-mm-dd)
+    val parts = date.split("-")
+    if (parts.size == 3) {
+        val year = parts[0]
+        val month = parts[1]
+        val day = parts[2]
+        // Retorna apenas números: dia + mês + ano
+        return "$day$month$year"
+    }
+
+    // Se não estiver no formato esperado, retorna apenas números
+    return date.filter { it.isDigit() }
 }
