@@ -115,6 +115,20 @@ object ApiClient {
         } catch (e: Exception) { false }
     }
 
+    suspend fun uploadSaleImages(saleId: Long, base64Images: List<String>): Boolean {
+        return try {
+            // Reaproveita a estrutura ImageBatchDTO que já existe no backend
+            val batch = ImageBatchDTO(base64Images.map { ImageDTOItem(it) })
+            val response = client.post("$baseUrl/api/sale/img/$saleId") {
+                setBody(batch)
+            }
+            response.status.isSuccess()
+        } catch (e: Exception) {
+            println("Erro upload comprovante: ${e.message}")
+            false
+        }
+    }
+
     suspend fun deleteProduct(id: Long) = try { client.delete("$baseUrl/api/product/$id").status.isSuccess() } catch (e: Exception) { false }
 
     // --- CATEGORIAS ---

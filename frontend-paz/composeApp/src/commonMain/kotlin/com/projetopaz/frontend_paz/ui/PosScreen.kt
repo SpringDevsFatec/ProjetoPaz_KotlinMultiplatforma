@@ -5,14 +5,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,17 +28,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import coil3.compose.AsyncImage
 import com.projetopaz.frontend_paz.model.*
 import com.projetopaz.frontend_paz.network.ApiClient
 import com.projetopaz.frontend_paz.theme.PazBlack
 import com.projetopaz.frontend_paz.theme.PazWhite
+import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.core.PickerMode
+import io.github.vinceglb.filekit.core.PickerType
 import kotlinx.coroutines.launch
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 // Classe auxiliar para o Carrinho
 data class CartItem(val product: Product, var quantity: Int)
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalEncodingApi::class)
 @Composable
 fun PosScreen(
     communityId: Long,
@@ -53,14 +63,38 @@ fun PosScreen(
     var currentSaleId by remember { mutableStateOf<Long?>(null) }
     var selectedPaymentMethod by remember { mutableStateOf("DINHEIRO") }
 
-    // Controle do diálogo de fechar caixa
+    // --- ESTADOS PARA O FECHAMENTO ---
     var showCloseDialog by remember { mutableStateOf(false) }
+    var closingObservation by remember { mutableStateOf("") }
+    var proofImagesBase64 by remember { mutableStateOf<List<String>>(emptyList()) }
+    var isUploading by remember { mutableStateOf(false) }
 
     // Filtro de busca
     var searchText by remember { mutableStateOf("") }
 
-    // Totais (CORRIGIDO: salePrice)
+    // Totais
     val totalAmount = cart.sumOf { it.product.salePrice * it.quantity }
+
+    // --- CORREÇÃO AQUI ---
+    // Configuração do FileKit para pegar imagens (Galeria/Câmera)
+    val launcher = rememberFilePickerLauncher(
+        type = PickerType.Image,
+        mode = PickerMode.Multiple(), // <--- ADICIONADO () AQUI
+        title = "Selecione Comprovantes"
+    ) { files ->
+        files?.let { fileList ->
+            // Processamento em background
+            val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default)
+            scope.launch {
+                val newImages = fileList.map { file ->
+                    val bytes = file.readBytes()
+                    Base64.encode(bytes)
+                }
+                // Adiciona às já existentes na lista (Voltando para a Main Thread se necessário, mas o State segura)
+                proofImagesBase64 = proofImagesBase64 + newImages
+            }
+        }
+    }
 
     // Inicialização
     LaunchedEffect(Unit) {
@@ -73,16 +107,26 @@ fun PosScreen(
         if (sale != null) {
             currentSaleId = sale.id
         } else {
-            onBackClick() // Erro crítico
+            onBackClick() // Erro crítico se não conseguir criar venda
         }
         isLoading = false
     }
 
     // Função para encerrar a venda (Fechar Caixa)
     fun closeSale() {
-        coroutineScope.launch {
-            if (currentSaleId != null) {
-                ApiClient.completeSale(currentSaleId!!)
+        if (currentSaleId != null) {
+            isUploading = true
+            coroutineScope.launch {
+                // 1. Se tiver imagens, faz upload primeiro
+                if (proofImagesBase64.isNotEmpty()) {
+                    ApiClient.uploadSaleImages(currentSaleId!!, proofImagesBase64)
+                }
+
+                // 2. Finaliza a venda no backend com a observação
+                ApiClient.completeSale(currentSaleId!!, closingObservation)
+
+                isUploading = false
+                showCloseDialog = false
                 onSaleFinished() // Sai da tela
             }
         }
@@ -90,19 +134,121 @@ fun PosScreen(
 
     val filteredProducts = products.filter { it.name.contains(searchText, ignoreCase = true) }
 
-    // Diálogo de Confirmação de Fechamento
+    // --- O NOVO DIÁLOGO DE FECHAMENTO ---
     if (showCloseDialog) {
-        AlertDialog(
-            onDismissRequest = { showCloseDialog = false },
-            title = { Text("Fechar Caixa?") },
-            text = { Text("Deseja encerrar as vendas deste ponto? Isso finalizará a sessão.") },
-            confirmButton = {
-                Button(onClick = { closeSale() }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red)) {
-                    Text("Encerrar")
+        Dialog(onDismissRequest = { if (!isUploading) showCloseDialog = false }) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = PazWhite),
+                modifier = Modifier.fillMaxWidth().padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text("Fechar Caixa", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Deseja encerrar as vendas deste ponto? Adicione comprovantes se necessário.",
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray
+                    )
+
+                    // Campo de Observação (Opcional)
+                    OutlinedTextField(
+                        value = closingObservation,
+                        onValueChange = { closingObservation = it },
+                        label = { Text("Observação do dia (Opcional)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 3
+                    )
+
+                    // Botão para Adicionar Fotos
+                    OutlinedButton(
+                        onClick = { launcher.launch() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Outlined.FileUpload, null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Adicionar Comprovantes/Fotos")
+                    }
+
+                    // Lista Horizontal de Miniaturas selecionadas
+                    if (proofImagesBase64.isNotEmpty()) {
+                        Text(
+                            "${proofImagesBase64.size} imagens selecionadas",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(proofImagesBase64) { base64 ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(60.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                                ) {
+                                    // Mostra a imagem decodificada do Base64
+                                    AsyncImage(
+                                        model = "data:image/jpeg;base64,$base64",
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    // Botãozinho X para remover
+                                    Icon(
+                                        Icons.Outlined.Close,
+                                        contentDescription = "Remover",
+                                        tint = Color.Red,
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .size(20.dp)
+                                            .background(PazWhite, CircleShape)
+                                            .clickable {
+                                                proofImagesBase64 = proofImagesBase64 - base64
+                                            }
+                                            .padding(2.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    // Botões de Ação (Voltar vs Encerrar)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // BOTÃO VOLTAR (Cancela a ação de fechar, continua vendendo)
+                        OutlinedButton(
+                            onClick = { showCloseDialog = false },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp),
+                            enabled = !isUploading
+                        ) {
+                            Text("Voltar", color = PazBlack)
+                        }
+
+                        // BOTÃO ENCERRAR (Finaliza tudo)
+                        Button(
+                            onClick = { closeSale() },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                            shape = RoundedCornerShape(8.dp),
+                            enabled = !isUploading
+                        ) {
+                            if (isUploading) {
+                                CircularProgressIndicator(color = PazWhite, modifier = Modifier.size(20.dp))
+                            } else {
+                                Text("Encerrar")
+                            }
+                        }
+                    }
                 }
-            },
-            dismissButton = { TextButton(onClick = { showCloseDialog = false }) { Text("Cancelar") } }
-        )
+            }
+        }
     }
 
     Scaffold(
@@ -270,7 +416,6 @@ fun PosScreen(
                                             val orderReq = OrderRequest(selectedPaymentMethod, itemsReq)
                                             if (ApiClient.createOrder(currentSaleId!!, orderReq)) {
                                                 cart = emptyList() // Limpa carrinho
-                                                // No autoatendimento, volta pro início (opcional)
                                             }
                                         }
                                     }

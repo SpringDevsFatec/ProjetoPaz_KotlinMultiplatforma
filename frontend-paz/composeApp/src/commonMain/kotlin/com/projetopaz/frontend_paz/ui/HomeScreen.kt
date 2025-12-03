@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,7 +19,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -31,11 +29,11 @@ import com.projetopaz.frontend_paz.network.ApiClient
 import com.projetopaz.frontend_paz.theme.PazBlack
 import com.projetopaz.frontend_paz.theme.PazGrayBgEnd
 import com.projetopaz.frontend_paz.theme.PazWhite
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    key: Int, // Chave para forçar a atualização da lista
     onNavigateToProducts: () -> Unit,
     onNavigateToCommunities: () -> Unit,
     onNavigateToSales: () -> Unit,
@@ -43,7 +41,7 @@ fun HomeScreen(
     onNavigateToCategories: () -> Unit,
     onNavigateToSuppliers: () -> Unit,
     onNavigateToProfile: () -> Unit,
-    onNavigateToSalesHistory: () -> Unit, // <--- NOVO PARÂMETRO
+    onNavigateToSalesHistory: () -> Unit,
     onLogout: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -51,9 +49,12 @@ fun HomeScreen(
     var isLoading by remember { mutableStateOf(true) }
     var isFabExpanded by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
+    // Recarrega sempre que a 'key' mudar
+    LaunchedEffect(key) {
         isLoading = true
-        sales = ApiClient.getAllSales()
+        // CORREÇÃO: Busca todas e ordena decrescente pelo ID (Mais novas primeiro)
+        val allSales = ApiClient.getAllSales()
+        sales = allSales.sortedByDescending { it.id }
         isLoading = false
     }
 
@@ -64,20 +65,16 @@ fun HomeScreen(
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 AnimatedVisibility(visible = isFabExpanded, enter = fadeIn() + slideInVertically { 40 }, exit = fadeOut() + slideOutVertically { 40 }) {
                     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-
-                        // Opções do Menu
                         FabOption("Vender", Icons.Outlined.ShoppingCart, onNavigateToSales)
-                        FabOption("Histórico", Icons.Default.History, onNavigateToSalesHistory) // <--- AQUI O HISTÓRICO
+                        FabOption("Histórico", Icons.Default.History, onNavigateToSalesHistory)
                         FabOption("Estoque", Icons.Outlined.Inventory, onNavigateToProducts)
                         FabOption("Comunidades", Icons.Outlined.People, onNavigateToCommunities)
                         FabOption("Fornecedores", Icons.Outlined.LocalShipping, onNavigateToSuppliers)
                         FabOption("Categorias", Icons.Default.Category, onNavigateToCategories)
-
                         FabOption("Fechar", Icons.Default.Close) { isFabExpanded = false }
                     }
                 }
 
-                // Botão Principal (+)
                 if (!isFabExpanded) {
                     FloatingActionButton(
                         onClick = { isFabExpanded = true },
@@ -121,7 +118,7 @@ fun HomeScreen(
                     } else if (sales.isEmpty()) {
                         Text("Nenhuma venda registrada.", color = Color.Gray, modifier = Modifier.padding(top=16.dp))
                     } else {
-                        // Mostra apenas as 5 últimas na Home para não ficar pesado
+                        // CORREÇÃO: take(5) aqui agora pega as 5 mais recentes porque já ordenamos lá em cima
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                             contentPadding = PaddingValues(bottom = 100.dp)
