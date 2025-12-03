@@ -31,6 +31,10 @@ data class User(
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
     var cellphones: MutableList<Cellphones> = mutableListOf(),
 
+    @Column(length = 255, nullable = true)
+    var recoveryToken: String? = null,
+
+
     var createdAt: LocalDate = LocalDate.now(),
     var updatedAt: LocalDate = LocalDate.now()
 )

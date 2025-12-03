@@ -24,6 +24,7 @@ dependencies {
     implementation("org.springframework.integration:spring-integration-jpa")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
 
     runtimeOnly("com.mysql:mysql-connector-j")
 

@@ -20,10 +20,30 @@ class UserController(
 ) {
     private val logger = LoggerFactory.getLogger(RequestLoggingFilter::class.java)
 
+    @PostMapping("/recover-password")
+    fun recoverPassword(@RequestBody dto: UserRecoveryDTO): ResponseEntity<String> {
+        val ok = userService.requestPasswordRecovery(dto.email)
+
+        return if (ok)
+            ResponseEntity.ok("Email de recuperação enviado!")
+        else
+            ResponseEntity.badRequest().body("Email não encontrado.")
+    }
+
+    @PutMapping("/reset-password")
+    fun resetPassword(@RequestBody dto: UserResetPasswordDTO): ResponseEntity<String> {
+        val ok = userService.resetPassword(dto.email, dto.token, dto.newPassword)
+
+        return if (ok)
+            ResponseEntity.ok("Senha alterada com sucesso!")
+        else
+            ResponseEntity.badRequest().body("Token inválido ou email incorreto.")
+    }
+
 
     @PostMapping
     fun createUser(@Valid @RequestBody dto: UserCreateDTO): ResponseEntity<UserResponseDTO> {
-        println("chegou controller!")
+
         val user = userService.createUserEncoded(dto)
 
         println(UserMapper.toResponseDTO(user))

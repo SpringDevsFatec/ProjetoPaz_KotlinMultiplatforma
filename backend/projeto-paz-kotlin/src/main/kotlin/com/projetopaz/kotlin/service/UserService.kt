@@ -10,19 +10,47 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
+import java.util.UUID
 import org.springframework.stereotype.Service
 
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val emailService: EmailService
 ) : UserDetailsService {
+
 
 
     fun createUser(dto: UserCreateDTO): User {
         val entity = UserMapper.toEntity(dto)
         return userRepository.save(entity)
+    }
+
+    fun requestPasswordRecovery(email: String): Boolean {
+        val user = userRepository.findByEmailAndStatusTrue(email) ?: return false
+
+        val token = UUID.randomUUID().toString()
+        user.recoveryToken = token
+        userRepository.save(user)
+
+        emailService.sendPasswordRecoveryEmail(email, token)
+        return true
+    }
+
+    fun resetPassword(email: String, token: String, newPassword: String): Boolean {
+        val user = userRepository.findByEmailAndStatusTrue(email) ?: return false
+
+        if (user.recoveryToken != token) {
+            return false
+        }
+
+        user.password = passwordEncoder.encode(newPassword)
+        user.recoveryToken = null
+        userRepository.save(user)
+
+        return true
     }
 
 
