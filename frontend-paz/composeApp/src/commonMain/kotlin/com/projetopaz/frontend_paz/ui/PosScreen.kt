@@ -1,5 +1,6 @@
 package com.projetopaz.frontend_paz.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,13 +40,12 @@ fun PosScreen(
     communityId: Long,
     isAutoService: Boolean,
     onBackClick: () -> Unit,
-    onSaleFinished: () -> Unit
+    onSaleFinished: () -> Unit // Quando fecha o caixa/venda
 ) {
     val coroutineScope = rememberCoroutineScope()
 
     // Dados
     var products by remember { mutableStateOf<List<Product>>(emptyList()) }
-    // Carrinho
     var cart by remember { mutableStateOf<List<CartItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -53,10 +53,13 @@ fun PosScreen(
     var currentSaleId by remember { mutableStateOf<Long?>(null) }
     var selectedPaymentMethod by remember { mutableStateOf("DINHEIRO") }
 
+    // Controle do diálogo de fechar caixa
+    var showCloseDialog by remember { mutableStateOf(false) }
+
     // Filtro de busca
     var searchText by remember { mutableStateOf("") }
 
-    // Totais (CORRIGIDO: usa 'cart' e 'salePrice')
+    // Totais (CORRIGIDO: salePrice)
     val totalAmount = cart.sumOf { it.product.salePrice * it.quantity }
 
     // Inicialização
@@ -64,18 +67,43 @@ fun PosScreen(
         isLoading = true
         products = ApiClient.getAllProducts()
 
-        // Cria a venda ao entrar
+        // Cria a venda (Sessão) ao entrar
         val saleReq = SaleRequest(communityId, isAutoService)
         val sale = ApiClient.createSale(saleReq)
         if (sale != null) {
             currentSaleId = sale.id
         } else {
-            onBackClick() // Erro ao criar venda
+            onBackClick() // Erro crítico
         }
         isLoading = false
     }
 
+    // Função para encerrar a venda (Fechar Caixa)
+    fun closeSale() {
+        coroutineScope.launch {
+            if (currentSaleId != null) {
+                ApiClient.completeSale(currentSaleId!!)
+                onSaleFinished() // Sai da tela
+            }
+        }
+    }
+
     val filteredProducts = products.filter { it.name.contains(searchText, ignoreCase = true) }
+
+    // Diálogo de Confirmação de Fechamento
+    if (showCloseDialog) {
+        AlertDialog(
+            onDismissRequest = { showCloseDialog = false },
+            title = { Text("Fechar Caixa?") },
+            text = { Text("Deseja encerrar as vendas deste ponto? Isso finalizará a sessão.") },
+            confirmButton = {
+                Button(onClick = { closeSale() }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red)) {
+                    Text("Encerrar")
+                }
+            },
+            dismissButton = { TextButton(onClick = { showCloseDialog = false }) { Text("Cancelar") } }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -85,11 +113,22 @@ fun PosScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
+                    // Ícone de Configuração (No Auto, é por aqui que sai)
                     Icon(
                         Icons.Default.Settings,
                         contentDescription = "Config",
                         tint = PazWhite,
-                        modifier = Modifier.align(Alignment.CenterStart).clickable { onBackClick() }
+                        modifier = Modifier.align(Alignment.CenterStart).clickable {
+                            // Se for Auto, pede confirmação para sair. Se for Manual, só volta.
+                            if (isAutoService) showCloseDialog = true else onBackClick()
+                        }
+                    )
+                    Text(
+                        if (isAutoService) "Auto Atendimento" else "Venda Manual #${currentSaleId ?: ""}",
+                        color = PazWhite,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        modifier = Modifier.align(Alignment.Center)
                     )
                     Text(
                         "25°🌡️",
@@ -105,16 +144,8 @@ fun PosScreen(
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
 
-            // Título e Busca
-            Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    if (isAutoService) "Auto Atendimento" else "Venda Manual",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = PazBlack
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
+            // Busca
+            Column(modifier = Modifier.padding(16.dp)) {
                 OutlinedTextField(
                     value = searchText,
                     onValueChange = { searchText = it },
@@ -127,7 +158,7 @@ fun PosScreen(
                         unfocusedBorderColor = Color.Transparent,
                         focusedBorderColor = PazBlack
                     ),
-                    trailingIcon = { Icon(Icons.Default.FilterList, null) }
+                    trailingIcon = { Icon(Icons.Default.Search, null) }
                 )
             }
 
@@ -144,7 +175,6 @@ fun PosScreen(
                     ) {
                         items(filteredProducts) { product ->
                             ProductGridItem(product) {
-                                // Adicionar ao carrinho
                                 val existingIndex = cart.indexOfFirst { it.product.id == product.id }
                                 if (existingIndex >= 0) {
                                     val updatedCart = cart.toMutableList()
@@ -159,119 +189,111 @@ fun PosScreen(
                 }
             }
 
-            // --- CARRINHO FIXO ---
-            if (cart.isNotEmpty()) {
+            // --- CARRINHO E FINALIZAÇÃO ---
+            if (cart.isNotEmpty() || !isAutoService) { // Manual sempre mostra a barra inferior
                 Surface(
                     color = Color(0xFF2D2D35),
                     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.ShoppingCart, null, tint = PazWhite)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Carrinho", color = PazWhite, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                        }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        // Só mostra lista do carrinho se tiver itens
+                        if (cart.isNotEmpty()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.ShoppingCart, null, tint = PazWhite)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Carrinho", color = PazWhite, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            }
 
-                        // Cabeçalho
-                        Row(Modifier.fillMaxWidth()) {
-                            Text("Produtos", Modifier.weight(1.5f), color = PazWhite, fontSize = 12.sp)
-                            Text("Qtd", Modifier.weight(1f), color = PazWhite, fontSize = 12.sp, textAlign = TextAlign.Center)
-                            Text("Preço", Modifier.weight(1f), color = PazWhite, fontSize = 12.sp, textAlign = TextAlign.End)
-                        }
-
-                        Divider(color = Color.Gray, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 8.dp))
-
-                        // Lista de Itens
-                        LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
-                            items(cart) { item ->
-                                Row(
-                                    Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(item.product.name, Modifier.weight(1.5f), color = PazWhite, fontSize = 14.sp)
-
-                                    // Controle de Quantidade
+                            LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
+                                items(cart) { item ->
                                     Row(
-                                        Modifier.weight(1f),
-                                        horizontalArrangement = Arrangement.Center,
+                                        Modifier.fillMaxWidth().padding(vertical = 4.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("-", color = PazWhite, modifier = Modifier.clickable {
-                                            if (item.quantity > 1) {
+                                        Text(item.product.name, Modifier.weight(1.5f), color = PazWhite, fontSize = 14.sp)
+
+                                        // Controle Qtd
+                                        Row(
+                                            Modifier.weight(1f),
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text("-", color = PazWhite, modifier = Modifier.clickable {
+                                                if (item.quantity > 1) {
+                                                    val idx = cart.indexOf(item)
+                                                    val newCart = cart.toMutableList()
+                                                    newCart[idx] = item.copy(quantity = item.quantity - 1)
+                                                    cart = newCart
+                                                } else {
+                                                    cart = cart - item
+                                                }
+                                            }.padding(horizontal = 8.dp))
+
+                                            Text("${item.quantity}", color = PazWhite)
+
+                                            Text("+", color = PazWhite, modifier = Modifier.clickable {
                                                 val idx = cart.indexOf(item)
                                                 val newCart = cart.toMutableList()
-                                                newCart[idx] = item.copy(quantity = item.quantity - 1)
+                                                newCart[idx] = item.copy(quantity = item.quantity + 1)
                                                 cart = newCart
-                                            } else {
-                                                cart = cart - item
-                                            }
-                                        }.padding(horizontal = 8.dp))
+                                            }.padding(horizontal = 8.dp))
+                                        }
 
-                                        Text("${item.quantity}", color = PazWhite)
-
-                                        Text("+", color = PazWhite, modifier = Modifier.clickable {
-                                            val idx = cart.indexOf(item)
-                                            val newCart = cart.toMutableList()
-                                            newCart[idx] = item.copy(quantity = item.quantity + 1)
-                                            cart = newCart
-                                        }.padding(horizontal = 8.dp))
+                                        // Preço Total do Item
+                                        Text("R$ ${item.product.salePrice * item.quantity}", Modifier.weight(1f), color = PazWhite, textAlign = TextAlign.End)
                                     }
-
-                                    // CORRIGIDO: salePrice
-                                    Text("R$ ${item.product.salePrice * item.quantity}", Modifier.weight(1f), color = PazWhite, textAlign = TextAlign.End)
                                 }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // Pagamento e Total
+                            Text("Total: R$ $totalAmount", color = PazWhite, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                PaymentOption("Cartão", selectedPaymentMethod == "CARTAO") { selectedPaymentMethod = "CARTAO" }
+                                PaymentOption("Pix", selectedPaymentMethod == "PIX") { selectedPaymentMethod = "PIX" }
+                                PaymentOption("Dinheiro", selectedPaymentMethod == "DINHEIRO") { selectedPaymentMethod = "DINHEIRO" }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // BOTÃO: FINALIZAR PEDIDO (Cria um pedido dentro da venda)
+                            Button(
+                                onClick = {
+                                    if (currentSaleId != null) {
+                                        coroutineScope.launch {
+                                            val itemsReq = cart.map { ItemOrderRequest(it.product.id, it.quantity, it.product.salePrice) }
+                                            val orderReq = OrderRequest(selectedPaymentMethod, itemsReq)
+                                            if (ApiClient.createOrder(currentSaleId!!, orderReq)) {
+                                                cart = emptyList() // Limpa carrinho
+                                                // No autoatendimento, volta pro início (opcional)
+                                            }
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF464F41)),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text("CONFIRMAR PEDIDO", color = PazWhite, fontWeight = FontWeight.Bold)
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text("Forma de pagamento:", color = PazWhite, fontSize = 12.sp)
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            PaymentOption("Cartão", selectedPaymentMethod == "CARTAO") { selectedPaymentMethod = "CARTAO" }
-                            PaymentOption("Pix", selectedPaymentMethod == "PIX") { selectedPaymentMethod = "PIX" }
-                            PaymentOption("Dinheiro", selectedPaymentMethod == "DINHEIRO") { selectedPaymentMethod = "DINHEIRO" }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text(
-                            "Total: R$ $totalAmount",
-                            color = PazWhite,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Botão Finalizar
-                        Button(
-                            onClick = {
-                                if (currentSaleId != null) {
-                                    coroutineScope.launch {
-                                        // CORRIGIDO: salePrice
-                                        val itemsReq = cart.map { ItemOrderRequest(it.product.id, it.quantity, it.product.salePrice) }
-                                        val orderReq = OrderRequest(selectedPaymentMethod, itemsReq)
-
-                                        if (ApiClient.createOrder(currentSaleId!!, orderReq)) {
-                                            onSaleFinished()
-                                        }
-                                    }
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth().height(50.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF464F41)),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text("Finalizar Pedido", color = PazWhite, fontWeight = FontWeight.Bold)
+                        // BOTÃO: ENCERRAR CAIXA (Só aparece no Manual)
+                        if (!isAutoService) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            OutlinedButton(
+                                onClick = { showCloseDialog = true },
+                                modifier = Modifier.fillMaxWidth(),
+                                border = BorderStroke(1.dp, Color.Red),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red)
+                            ) {
+                                Text("ENCERRAR CAIXA (Fim do Dia)")
+                            }
                         }
                     }
                 }
@@ -334,6 +356,7 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Botão "+" preto largo
             Button(
                 onClick = onClick,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2D2D35)),

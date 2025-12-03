@@ -15,8 +15,9 @@ import kotlinx.serialization.json.Json
 
 object ApiClient {
     private val baseUrl = when (getPlatform()) {
-        Platform.Android -> "http://10.0.2.2:8081"
-        else -> "http://localhost:8081"
+        Platform.Android -> "http://10.0.2.2:8081" // Android Emulator
+        Platform.Web -> "http://localhost:8081"    // Browser (JS/Wasm)
+        else -> "http://localhost:8081"            // Desktop/iOS
     }
 
     var currentUser: UserResponse? = null
@@ -106,7 +107,7 @@ object ApiClient {
         } catch (e: Exception) { null }
     }
 
-    // Upload de Imagens (É feito DEPOIS de criar o produto)
+    // Upload de Imagens
     suspend fun uploadProductImages(productId: Long, base64Images: List<String>): Boolean {
         return try {
             val batch = ImageBatchDTO(base64Images.map { ImageDTOItem(it) })
@@ -118,45 +119,15 @@ object ApiClient {
 
     // --- CATEGORIAS ---
     suspend fun getAllCategories(): List<Category> = try { client.get("$baseUrl/api/category").body() } catch (e: Exception) { emptyList() }
-
-    suspend fun createCategory(category: Category): Boolean {
-        return try {
-            client.post("$baseUrl/api/category") { setBody(category) }.status.isSuccess()
-        } catch (e: Exception) { false }
-    }
-
-    suspend fun updateCategory(id: Long, category: Category): Boolean {
-        return try {
-            client.put("$baseUrl/api/category/$id") { setBody(category) }.status.isSuccess()
-        } catch (e: Exception) { false }
-    }
-
-    suspend fun deleteCategory(id: Long): Boolean {
-        return try {
-            client.delete("$baseUrl/api/category/$id").status.isSuccess()
-        } catch (e: Exception) { false }
-    }
+    suspend fun createCategory(category: Category) = try { client.post("$baseUrl/api/category") { setBody(category) }.status.isSuccess() } catch (e: Exception) { false }
+    suspend fun updateCategory(id: Long, category: Category) = try { client.put("$baseUrl/api/category/$id") { setBody(category) }.status.isSuccess() } catch (e: Exception) { false }
+    suspend fun deleteCategory(id: Long) = try { client.delete("$baseUrl/api/category/$id").status.isSuccess() } catch (e: Exception) { false }
 
     // --- FORNECEDORES ---
     suspend fun getAllSuppliers(): List<Supplier> = try { client.get("$baseUrl/api/supplier").body() } catch (e: Exception) { emptyList() }
-
-    suspend fun createSupplier(supplier: Supplier): Boolean {
-        return try {
-            client.post("$baseUrl/api/supplier") { setBody(supplier) }.status.isSuccess()
-        } catch (e: Exception) { false }
-    }
-
-    suspend fun updateSupplier(id: Long, supplier: Supplier): Boolean {
-        return try {
-            client.put("$baseUrl/api/supplier/$id") { setBody(supplier) }.status.isSuccess()
-        } catch (e: Exception) { false }
-    }
-
-    suspend fun deleteSupplier(id: Long): Boolean {
-        return try {
-            client.delete("$baseUrl/api/supplier/$id").status.isSuccess()
-        } catch (e: Exception) { false }
-    }
+    suspend fun createSupplier(supplier: Supplier) = try { client.post("$baseUrl/api/supplier") { setBody(supplier) }.status.isSuccess() } catch (e: Exception) { false }
+    suspend fun updateSupplier(id: Long, supplier: Supplier) = try { client.put("$baseUrl/api/supplier/$id") { setBody(supplier) }.status.isSuccess() } catch (e: Exception) { false }
+    suspend fun deleteSupplier(id: Long) = try { client.delete("$baseUrl/api/supplier/$id").status.isSuccess() } catch (e: Exception) { false }
 
     // --- COMUNIDADES ---
     suspend fun getAllCommunities(): List<Community> = try { client.get("$baseUrl/api/communities").body() } catch (e: Exception) { emptyList() }
@@ -166,8 +137,22 @@ object ApiClient {
 
     // --- VENDAS ---
     suspend fun getAllSales(): List<SaleResponse> = try { client.get("$baseUrl/api/sale").body() } catch (e: Exception) { emptyList() }
+
     suspend fun createSale(req: SaleRequest): SaleResponse? = try { client.post("$baseUrl/api/sale") { setBody(req) }.body() } catch (e: Exception) { null }
+
     suspend fun createOrder(saleId: Long, req: OrderRequest) = try { client.post("$baseUrl/api/order/$saleId") { setBody(req) }.status.isSuccess() } catch (e: Exception) { false }
+
+    // Finalizar Venda
+    suspend fun completeSale(id: Long, observation: String = ""): Boolean {
+        return try {
+            val response = client.post("$baseUrl/api/sale/completed/$id") {
+                setBody(mapOf("observation" to observation))
+            }
+            response.status.isSuccess()
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     // --- SENSOR (IOT) ---
     suspend fun getSensorData(): SensorData? = try { client.get("$baseUrl/api/sensor/current").body() } catch (e: Exception) { null }

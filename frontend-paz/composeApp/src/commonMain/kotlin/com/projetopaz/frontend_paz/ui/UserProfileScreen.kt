@@ -1,5 +1,6 @@
 package com.projetopaz.frontend_paz.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -27,28 +28,26 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onLogout: () -> Unit // <--- NOVO PARÂMETRO
 ) {
     val user = ApiClient.currentUser
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
-    // Preenche com os dados do usuário logado (ou vazio se der erro)
+    // Preenche com os dados do usuário logado
     var name by remember { mutableStateOf(user?.name ?: "") }
     var email by remember { mutableStateOf(user?.email ?: "") }
 
-    // Pega o primeiro telefone da lista, se existir
     var phone by remember { mutableStateOf(user?.cellphones?.firstOrNull()?.cellphone1 ?: "") }
     var ddd by remember { mutableStateOf(user?.cellphones?.firstOrNull()?.ddd1 ?: "") }
 
-    // Endereço
     var cep by remember { mutableStateOf(user?.adress?.cep ?: "") }
     var street by remember { mutableStateOf(user?.adress?.street ?: "") }
     var number by remember { mutableStateOf(user?.adress?.number ?: "") }
     var quarter by remember { mutableStateOf(user?.adress?.quarter ?: "") }
     var complement by remember { mutableStateOf(user?.adress?.complement ?: "") }
 
-    // Senha (Obrigatória pelo Backend para atualizar)
     var password by remember { mutableStateOf("") }
 
     var isLoading by remember { mutableStateOf(false) }
@@ -96,9 +95,8 @@ fun UserProfileScreen(
             // Campos
             SectionTitle("Dados Pessoais")
             PazInput("Nome Completo", name, { name = it }, icon = Icons.Default.Person)
-            PazInput("Email", email, { email = it }, icon = Icons.Default.Email) // Email pode ser editado? Depende do backend
+            PazInput("Email", email, { email = it }, icon = Icons.Default.Email)
 
-            // Campo de Senha (Novo)
             PazInput("Senha (Confirme para salvar) *", password, { password = it }, icon = Icons.Default.Lock, isPassword = true)
             Text("Digite sua senha atual (ou uma nova) para confirmar as alterações.", fontSize = 12.sp, color = Color.Gray)
 
@@ -127,17 +125,13 @@ fun UserProfileScreen(
                         coroutineScope.launch {
                             val addressObj = Address(street, cep, quarter, number, complement)
                             val phones = listOf(Cellphone("+55", ddd, null, phone, null))
-
-                            // Mantém a data de nascimento original pois não estamos editando aqui
-                            // Se o backend aceitar string ISO, tentamos converter ou mandamos a original se possível
-                            // Aqui vamos assumir que o usuário não muda a data de nascimento no perfil simplificado
                             val birthdayStr = user.birthday ?: "2000-01-01"
 
                             val request = UserCreateRequest(
                                 name = name,
-                                surname = user.surname, // Mantém original
+                                surname = user.surname,
                                 email = email,
-                                password = password, // Backend exige senha
+                                password = password,
                                 birthday = birthdayStr,
                                 urlImage = user.urlImage,
                                 adress = addressObj,
@@ -163,6 +157,26 @@ fun UserProfileScreen(
                 if(isLoading) CircularProgressIndicator(color = PazWhite)
                 else Text("SALVAR ALTERAÇÕES", fontWeight = FontWeight.Bold)
             }
+
+            Spacer(Modifier.height(16.dp))
+
+            // --- BOTÃO DE LOGOUT ---
+            OutlinedButton(
+                onClick = {
+                    ApiClient.clearToken() // Limpa sessão
+                    onLogout() // Navega para Login
+                },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                shape = RoundedCornerShape(25.dp),
+                border = BorderStroke(1.dp, Color.Red),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red)
+            ) {
+                Icon(Icons.Default.ExitToApp, null)
+                Spacer(Modifier.width(8.dp))
+                Text("SAIR DA CONTA", fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(Modifier.height(24.dp))
         }
     }
 }

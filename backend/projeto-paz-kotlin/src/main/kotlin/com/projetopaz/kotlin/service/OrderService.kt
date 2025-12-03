@@ -18,30 +18,32 @@ class OrderService(
 
     fun createOrder(saleId: Long, dto: OrderDTO): Order? {
         val sale = saleRepository.findById(saleId).orElse(null) ?: return null
+
+        // Só permite pedido se a venda estiver aberta (status 1)
         if (sale.status != 1) return null
-        // cria order
+
+        // Cria order
         val order = OrderMapper.toEntity(dto)
         order.sale = sale
 
-        // ⭐ Calcula o total_amount diretamente da lista enviada no DTO
-        val totalAmount = dto.items.sumOf { it.unitPrice }
-        order.total_amount_order  = totalAmount
+        val totalAmount = dto.items.sumOf { it.unitPrice * it.quantity }
+
+        order.total_amount_order = totalAmount
 
         val savedOrder = orderRepository.save(order)
 
-        // cria itens
+        // Cria itens no banco
         val items = dto.items.map {
             val entity = ItemOrderMapper.toEntity(it)
             entity.order = savedOrder
             itemOrderRepository.save(entity)
         }
 
-        // adiciona itens na entity já persistida
+        // Atualiza a lista de itens na memória
         savedOrder.items = items.toMutableSet()
 
         return savedOrder
     }
-
 
     fun getBySaleId(saleId: Long): List<Order> =
         orderRepository.findAllBySaleId(saleId)
@@ -56,5 +58,3 @@ class OrderService(
         return true
     }
 }
-
-

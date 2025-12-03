@@ -67,6 +67,10 @@ kotlin {
         jsMain.dependencies {
             // ATUALIZADO: Ktor 3.3.0
             implementation("io.ktor:ktor-client-js:3.3.0")
+            implementation(npm("os-browserify", "0.3.0"))
+            implementation(npm("path-browserify", "1.0.1"))
+            implementation(npm("process", "0.11.10"))
+            implementation(npm("buffer", "6.0.3"))
         }
         iosMain.dependencies {
             // ATUALIZADO: Ktor 3.3.0
