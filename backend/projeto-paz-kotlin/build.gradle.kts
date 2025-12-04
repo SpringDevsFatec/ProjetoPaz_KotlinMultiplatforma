@@ -33,6 +33,8 @@ dependencies {
     implementation("org.springframework.integration:spring-integration-jpa")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.springframework.integration:spring-integration-mqtt")
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
 
     runtimeOnly("com.mysql:mysql-connector-j")
 

@@ -48,6 +48,7 @@ fun HomeScreen(
     var sales by remember { mutableStateOf<List<SaleResponse>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var isFabExpanded by remember { mutableStateOf(false) }
+    var currentTemp by remember { mutableStateOf("00") }
 
     // Recarrega sempre que a 'key' mudar
     LaunchedEffect(key) {
@@ -55,6 +56,12 @@ fun HomeScreen(
         // CORREÇÃO: Busca todas e ordena decrescente pelo ID (Mais novas primeiro)
         val allSales = ApiClient.getAllSales()
         sales = allSales.sortedByDescending { it.id }
+        isLoading = false
+        val sensor = ApiClient.getSensorData()
+        if (sensor != null) {
+            currentTemp = sensor.temperature.toString()
+        }
+
         isLoading = false
     }
 
@@ -98,7 +105,7 @@ fun HomeScreen(
                             IconButton(onClick = onNavigateToProfile) {
                                 Icon(Icons.Default.Person, null, modifier = Modifier.size(48.dp), tint = PazBlack)
                             }
-                            Text("25°🌡️", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PazBlack)
+                            Text("${currentTemp}°🌡️", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PazBlack)
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Text("Seja bem-vindo!", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = PazBlack)

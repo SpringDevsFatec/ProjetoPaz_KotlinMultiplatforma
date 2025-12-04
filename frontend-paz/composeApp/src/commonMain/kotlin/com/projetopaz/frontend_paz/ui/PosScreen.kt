@@ -54,6 +54,8 @@ fun PosScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
+    var currentTemp by remember { mutableStateOf("00") }
+
     // Dados
     var products by remember { mutableStateOf<List<Product>>(emptyList()) }
     var cart by remember { mutableStateOf<List<CartItem>>(emptyList()) }
@@ -277,7 +279,7 @@ fun PosScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                     Text(
-                        "25°🌡️",
+                        "${currentTemp}°🌡️",
                         color = PazWhite,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,

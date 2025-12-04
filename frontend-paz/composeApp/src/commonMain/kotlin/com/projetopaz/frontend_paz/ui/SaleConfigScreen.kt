@@ -44,6 +44,7 @@ fun SaleConfigScreen(
     var isCommunityDropdownExpanded by remember { mutableStateOf(false) }
     var isAutoService by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    var currentTemp by remember { mutableStateOf("00") }
 
     // Carrega dados ao abrir a tela
     LaunchedEffect(Unit) {
@@ -65,7 +66,7 @@ fun SaleConfigScreen(
                     }
                 },
                 actions = {
-                    Text("25°🌡️", fontWeight = FontWeight.Bold, modifier = Modifier.padding(end = 16.dp))
+                    Text("${currentTemp}°🌡️", fontWeight = FontWeight.Bold, modifier = Modifier.padding(end = 16.dp))
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = PazBlack, titleContentColor = PazWhite, navigationIconContentColor = PazWhite, actionIconContentColor = PazWhite)
             )
