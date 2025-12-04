@@ -134,7 +134,7 @@ Este projeto é uma modernização da aplicação "Projeto Paz", implementado co
    ### 💻 Documentação da API
    
    -   **Swagger/OpenAPI**
-
+----------
 ### 🌡️ IoT (Internet das Coisas)
 
 - **ESP32** — Microcontrolador responsável pela leitura e comunicação dos dados ambientais.  
