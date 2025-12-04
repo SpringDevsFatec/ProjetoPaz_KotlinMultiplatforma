@@ -2,7 +2,7 @@
 <br id="topo"> <h1 align="center"> Projeto Paz 🕊️ </h1> <p 
 align="center"> <a href="#descgeral">Descrição Geral</a> | <a 
 href="#equipe">Equipe</a> | <a 
-href="#fundamentacao">Fundamentação Teórica</a> | <a href="#publicoalvo">Público-Alvo</a> | <a href="#metodologia">Metodologia</a> | <a href="#tecnologias">Tecnologias</a> | <a href="#instalacao">Instalação e Execução</a> 
+href="#fundamentacao">Fundamentação Teórica</a> | <a href="#publicoalvo">Público-Alvo</a> | <a href="#metodologia">Metodologia</a> | <a href="#tecnologias">Tecnologias</a> | <a href="#internet das coisas (iot)">Internet das Coisas (IoT)</a> | <a href="#instalacao">Instalação e Execução</a> 
 
 ----------
 
@@ -133,10 +133,67 @@ Este projeto é uma modernização da aplicação "Projeto Paz", implementado co
 ----------
    ### 💻 Documentação da API
    
-   -   **Swagger/OpenAPI** 
+   -   **Swagger/OpenAPI**
 
+### 🌡️ IoT (Internet das Coisas)
+
+- **ESP32** — Microcontrolador responsável pela leitura e comunicação dos dados ambientais.  
+- **DHT11** — Sensor digital de temperatura e umidade.  
+- **Resistor 10kΩ (pull-up)** — Utilizado entre VCC e DATA para estabilizar o sinal do sensor.  
+- **Circuito de prototipagem** (jumpers, breadboard) — Suporte físico para conexão dos componentes.  
+- **Comunicação Serial / GPIO** — Integração entre sensor e microcontrolador.
+- **Wokwi** — Plataforma online utilizada para simulação do circuito ESP32 + DHT22 + LED, permitindo testar o comportamento do hardware antes da montagem física.
+- **Envio de dados para nuvem** (via Wi-Fi do ESP32) — Possibilita armazenamento e análise dos dados coletados.
 
 → [Voltar ao topo](#topo)
+
+----------
+
+
+<span id="internet das coisas (iot)">
+### 🌡️ Internet das Coisas (IoT)
+
+O Projeto Paz também integra conceitos de Internet das Coisas (IoT) para permitir a coleta automática de dados ambientais, ampliando a precisão e o alcance das informações utilizadas na gestão.
+
+A montagem do circuito foi inicialmente simulada na plataforma Wokwi, permitindo validar o comportamento do ESP32, do sensor DHT22 e da LED indicadora antes da implementação física. A simulação possibilitou testar a leitura dos dados, a comunicação via GPIO e o acionamento da LED, garantindo que todo o fluxo estivesse funcional antes da montagem real.
+
+#### 🔧 Componentes Utilizados
+
+- **DHT11**  
+  - Sensor digital que mede temperatura e umidade relativa do ar.  
+  - Comunicação por um único pino de dados.
+
+- **ESP32**  
+  - Microcontrolador com Wi-Fi e Bluetooth integrados.  
+  - Responsável por receber as leituras e realizar o envio para sistemas de análise.
+
+- **LED vermelha**
+  - Indica visualmente quando os dados são enviados pelo ESP32.
+
+-**Resistor da LED**
+  - Usado apenas na LED, evitando sobrecorrente.
+
+#### 🔌 Ligações da Montagem
+
+- **VCC (vermelho)** → 3.3V no ESP32  
+- **GND (preto)** → GND no ESP32  
+- **DATA (verde)** → GPIO 15 do ESP32  
+- **Resistor interno da placa** — já integrado ao circuito
+- **LED vermelha** → Conectada ao ESP32 como indicador de envio de dados.
+- **Resistor da LED** → Em série com a LED, garantindo funcionamento seguro e evitando sobrecorrente.
+  
+#### 🎯 Finalidade no Projeto Paz
+
+Essa montagem IoT é utilizada para:
+
+- Monitorar a **temperatura ambiente**  
+- Permitir **coleta contínua e confiável de dados**  
+- Contribuir para a **automação e modernização** da plataforma
+
+A integração de IoT reforça o papel do Projeto Paz como **solução tecnológica completa**, alinhada às demandas de organização, controle e qualidade no trabalho informal.
+
+→ [Voltar ao topo](#topo)
+
 
 ----------
 
