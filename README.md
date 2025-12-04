@@ -151,7 +151,8 @@ Este projeto é uma modernização da aplicação "Projeto Paz", implementado co
 
 
 <span id="internet das coisas (iot)">
-## 🌡️ Internet das Coisas (IoT)
+    
+##  🌡️ Internet das Coisas (IoT)
 
 O Projeto Paz também integra conceitos de Internet das Coisas (IoT) para permitir a coleta automática de dados ambientais, ampliando a precisão e o alcance das informações utilizadas na gestão.
 
