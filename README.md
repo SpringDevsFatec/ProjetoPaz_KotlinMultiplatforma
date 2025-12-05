@@ -2,7 +2,7 @@
 <br id="topo"> <h1 align="center"> Projeto Paz 🕊️ </h1> <p 
 align="center"> <a href="#descgeral">Descrição Geral</a> | <a 
 href="#equipe">Equipe</a> | <a 
-href="#fundamentacao">Fundamentação Teórica</a> | <a href="#publicoalvo">Público-Alvo</a> | <a href="#metodologia">Metodologia</a> | <a href="#tecnologias">Tecnologias</a> | <a href="#internet das coisas (iot)">Internet das Coisas (IoT)</a> | <a href="#instalacao">Instalação e Execução</a> 
+href="#fundamentacao">Fundamentação Teórica</a> | <a href="#publicoalvo">Público-Alvo</a> | <a href="#metodologia">Metodologia</a> | <a href="#tecnologias">Tecnologias</a> | <a href="#internet das coisas (iot)">Internet das Coisas (IoT)</a> | <a href="#demo">Demonstração</a> | <a href="#instalacao">Instalação e Execução</a> 
 
 ----------
 
@@ -195,6 +195,18 @@ A integração de IoT reforça o papel do Projeto Paz como **solução tecnológ
 
 → [Voltar ao topo](#topo)
 
+
+----------
+
+<span id="demo">
+
+## 🎥 Demonstração do Projeto
+
+Para visualizar o funcionamento da aplicação na prática, assista ao vídeo abaixo:
+
+🔗 **Vídeo de demonstração:** https://www.youtube.com/watch?v=IfXGEZ7bx8Q
+
+→ [Voltar ao topo](#topo)
 
 ----------
 
